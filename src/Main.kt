@@ -2,13 +2,11 @@ import Helper.CMDHelper
 import Helper.DadoHelper
 import Helper.Dados
 import Helper.SorteStatus
-import Model.*
-import Model.Efeitos.Itens
+import Model.Personagem.*
 import Model.Estruturas.Direcao
 import Model.Estruturas.Estruturas
 import Model.Estruturas.Mapa
 import Model.Estruturas.Territorio
-import Model.Personagem.*
 import java.util.*
 import kotlin.random.Random
 
