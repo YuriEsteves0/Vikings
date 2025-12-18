@@ -2,11 +2,8 @@ import Helper.CMDHelper
 import Helper.DadoHelper
 import Helper.Dados
 import Helper.SorteStatus
+import Model.Estruturas.*
 import Model.Personagem.*
-import Model.Estruturas.Direcao
-import Model.Estruturas.Estruturas
-import Model.Estruturas.Mapa
-import Model.Estruturas.Territorio
 import java.util.*
 import kotlin.random.Random
 
@@ -24,6 +21,16 @@ fun main() {
         }
 
         criarMapa(jogador, mapa)
+
+        if(jogador.comida <= 0){
+            jogador.comida = 0
+            for(tropa in jogador.tropas){
+                CMDHelper.Debug(tropa.vida.toString())
+                tropa.vida = tropa.vida - 1
+                CMDHelper.Debug(tropa.vida.toString())
+            }
+            println("Suas tropas estão com fome, penalidade de -1 hp")
+        }
 
         println("Comida: ${jogador.comida}      Ouro: ${jogador.ouro}      Tropas: ${jogador.tropas.size}")
         val territorioAtual = jogador.territorioAtual
@@ -46,57 +53,56 @@ fun main() {
 
         when(acaoUsu){
             AcoesJogador.Andar -> {
-                if(territorioAtual.inimigos.isEmpty()){
-                    println("Digite o nome do lugar que você quer ir:")
-                    println("(EX: montanha / RIO")
-                    val acaoUsuTxt = readLine() ?: ""
 
-                    var acaoAndarUsu = acaoUsuTxt.lowercase(Locale.getDefault())
-
-                    val destino = mapa.encontrarTerritorio(acaoAndarUsu)
-
-                    if (destino != null) {
-                        if (territoriosAnalisados.containsKey(destino.nome)) {
-                            val sorte = territoriosAnalisados[destino.nome]!!
-
-                            val random = Random
-                            val chanceEmboscada = random.nextInt(1, 10)
-
-                            when (sorte) {
-                                SorteStatus.FALHA_CRITICA -> if (chanceEmboscada <= 10) emboscada(jogador, destino)
-                                SorteStatus.FALHA -> if (chanceEmboscada <= 7) emboscada(jogador, destino)
-                                SorteStatus.OK -> if (chanceEmboscada <= 5) emboscada(jogador, destino)
-                                SorteStatus.SUCESSO -> if (chanceEmboscada <= 3) emboscada(jogador, destino)
-                                SorteStatus.SUCESSO_CRITICO -> {  }
-                            }
-
-                            jogador.territorioAtual = destino
-                        } else{
-                            if(destino.inimigos.size > 0){
-                                val random = Random
-                                val chanceEmboscada = random.nextInt(1,10)
-                                if(chanceEmboscada <= 5){
-                                    emboscada(jogador, destino)
-                                }else{
-                                    println()
-                                    println("Você evitou uma emboscada")
-                                }
-
-                                jogador.territorioAtual = destino
-                            }else{
-                                jogador.territorioAtual = destino
-                                CMDHelper.limparTela()
-                            }
-                        }
-                        consumirComida(jogador, acaoUsu)
-                    }else {
-                        CMDHelper.limparTela()
-                        println("Território não encontrado!")
-                    }
-                }else{
+                if (territorioAtual.inimigos.isNotEmpty()) {
                     CMDHelper.limparTela()
                     println("Ainda há inimigos neste território")
                     CMDHelper.pressionarEnterContinuar()
+                    return
+                }else{
+                    println()
+                    println("Para onde deseja ir?")
+                    println("Ex: Montanhas | norte | cima")
+                    println()
+
+
+                    val entrada = readLine()?.trim() ?: ""
+
+                    val destino = resolverDestino(territorioAtual, mapa, entrada)
+
+                    if (destino == null) {
+                        CMDHelper.limparTela()
+                        println("Destino inválido ou inacessível!")
+                        CMDHelper.pressionarEnterContinuar()
+                    }else{
+
+                        if (territoriosAnalisados.containsKey(destino.nome)) {
+
+                            val sorte = territoriosAnalisados[destino.nome]!!
+                            val chance = Random.nextInt(1, 10)
+
+                            when (sorte) {
+                                SorteStatus.FALHA_CRITICA -> if (chance <= 10) emboscada(jogador, destino)
+                                SorteStatus.FALHA -> if (chance <= 7) emboscada(jogador, destino)
+                                SorteStatus.OK -> if (chance <= 5) emboscada(jogador, destino)
+                                SorteStatus.SUCESSO -> if (chance <= 3) emboscada(jogador, destino)
+                                SorteStatus.SUCESSO_CRITICO -> {}
+                            }
+
+                        } else if (destino.inimigos.isNotEmpty()) {
+                            val chance = Random.nextInt(1, 10)
+                            if (chance <= 5) {
+                                emboscada(jogador, destino)
+                            } else {
+                                println()
+                                println("Você evitou uma emboscada")
+                            }
+                        }
+
+                        jogador.territorioAtual = destino
+                        consumirComida(jogador, AcoesJogador.Andar)
+                        CMDHelper.limparTela()
+                    }
                 }
             }
 
@@ -172,223 +178,140 @@ fun main() {
                     println("Não há inimigos neste território.")
                     CMDHelper.pressionarEnterContinuar()
                 }else{
+                    var combateAtivo = true
 
+                    while (
+                        combateAtivo &&
+                        jogador.tropas.isNotEmpty() &&
+                        territorioAtual.inimigos.isNotEmpty()
+                    ) {
 
+                        val ordemAtaque = mutableListOf<Any>()
 
-                    val ordemAtaque = mutableListOf<Any>()
+                        var iAliado = 0
+                        var iInimigo = 0
+                        var vezAliado = Random.nextBoolean()
 
-                    var iAliado = 0
-                    var iInimigo = 0
-                    var vezAliado = Random.nextBoolean()
+                        while (iAliado < jogador.tropas.size || iInimigo < territorioAtual.inimigos.size) {
 
-                    while (iAliado < jogador.tropas.size || iInimigo < territorioAtual.inimigos.size) {
+                            if (vezAliado && iAliado < jogador.tropas.size) {
+                                ordemAtaque.add(jogador.tropas[iAliado++])
+                            } else if (!vezAliado && iInimigo < territorioAtual.inimigos.size) {
+                                ordemAtaque.add(territorioAtual.inimigos[iInimigo++])
+                            }
 
-                        if (vezAliado && iAliado < jogador.tropas.size) {
-                            ordemAtaque.add(jogador.tropas[iAliado++])
-                        } else if (!vezAliado && iInimigo < territorioAtual.inimigos.size) {
-                            ordemAtaque.add(territorioAtual.inimigos[iInimigo++])
-                        }
-
-                        vezAliado = !vezAliado
-                        if (iAliado >= jogador.tropas.size) vezAliado = false
-                        if (iInimigo >= territorioAtual.inimigos.size) vezAliado = true
-                    }
-
-                    CMDHelper.limparTela()
-                    mostrarOrdemAtaque(ordemAtaque)
-                    CMDHelper.pressionarEnterContinuar()
-
-                    for (entidade in ordemAtaque) {
-
-                        if (jogador.tropas.isEmpty()) {
-                            println("☠ Todas as suas tropas foram derrotadas!")
-                            CMDHelper.pressionarEnterContinuar()
-                            break
-                        }
-
-                        if (territorioAtual.inimigos.isEmpty()) {
-                            println("🎉 Todos os inimigos foram derrotados!")
-                            CMDHelper.pressionarEnterContinuar()
-                            break
+                            vezAliado = !vezAliado
+                            if (iAliado >= jogador.tropas.size) vezAliado = false
+                            if (iInimigo >= territorioAtual.inimigos.size) vezAliado = true
                         }
 
                         CMDHelper.limparTela()
-                        mostrarPainelBatalha(jogador, territorioAtual.inimigos)
-
-                        when (entidade) {
-
-                            is Tropa -> {
-                                if (!jogador.tropas.contains(entidade)) continue
-
-                                if (!entidade.podeAgir()) {
-                                    println("\n⏳ ${entidade.tipo.name.formatarNome()} está incapacitado!")
-                                    entidade.aplicarEfeitoStatus()
-                                    CMDHelper.pressionarEnterContinuar()
-                                    continue
-                                }
-
-                                val inimigoAlvo = territorioAtual.inimigos.random()
-                                println("\n▶ TURNO DO ALIADO")
-                                println("🗡 ${entidade.tipo.name.formatarNome()} ➜ ${inimigoAlvo.nome.name.formatarNome()}")
-
-                                val dano = entidade.decidirMovimento(jogador, inimigoAlvo)
-                                println("💥 Dano causado: $dano")
-
-                                inimigoAlvo.vida -= dano
-
-                                if (inimigoAlvo.vida <= 0) {
-                                    println("☠ ${inimigoAlvo.nome.name.formatarNome()} foi derrotado!")
-                                    territorioAtual.inimigos.remove(inimigoAlvo)
-                                }
-                            }
-
-                            is Inimigo -> {
-                                if (!territorioAtual.inimigos.contains(entidade)) continue
-
-                                if (!entidade.podeAgir()) {
-                                    println("\n⏳ ${entidade.nome.name.formatarNome()} está incapacitado!")
-                                    entidade.aplicarEfeitoStatus()
-                                    CMDHelper.pressionarEnterContinuar()
-                                    continue
-                                }
-
-                                val tropaAlvo = jogador.tropas.random()
-                                println("\n▶ TURNO DO INIMIGO")
-                                println("🩸 ${entidade.nome.name.formatarNome()} ➜ ${tropaAlvo.tipo.name.formatarNome()}")
-
-                                val dano = entidade.decidirMovimento(tropaAlvo)
-                                println("💥 Dano causado: $dano")
-
-                                tropaAlvo.vida -= dano
-
-                                if (tropaAlvo.vida <= 0) {
-                                    println("☠ ${tropaAlvo.tipo.name.formatarNome()} foi derrotado!")
-                                    jogador.tropas.remove(tropaAlvo)
-                                }
-                            }
-                        }
-
+                        mostrarOrdemAtaque(ordemAtaque)
                         CMDHelper.pressionarEnterContinuar()
+
+                        for (entidade in ordemAtaque) {
+
+                            if (!combateAtivo) break
+                            if (jogador.tropas.isEmpty()) break
+                            if (territorioAtual.inimigos.isEmpty()) break
+
+                            CMDHelper.limparTela()
+                            mostrarPainelBatalha(jogador, territorioAtual.inimigos)
+
+                            when (entidade) {
+
+                                is Tropa -> {
+                                    if (!jogador.tropas.contains(entidade)) continue
+
+                                    if (!entidade.podeAgir()) {
+                                        println("\n⏳ ${entidade.tipo.name.formatarNome()} está incapacitado!")
+                                        entidade.aplicarEfeitoStatus()
+                                        CMDHelper.pressionarEnterContinuar()
+                                        continue
+                                    }
+
+                                    val alvosPossiveis =
+                                        territorioAtual.inimigos.filter { it.status != StatusPersonagem.INVISIVEL }
+
+                                    if (alvosPossiveis.isEmpty()) continue
+
+                                    val inimigoAlvo = alvosPossiveis.random()
+
+                                    println("\n▶ TURNO DO ALIADO")
+                                    println("🗡 ${entidade.tipo.name.formatarNome()} ➜ ${inimigoAlvo.nome.name.formatarNome()}")
+
+                                    val dano = entidade.decidirMovimento(jogador, inimigoAlvo)
+                                    println("💥 Dano causado: $dano")
+
+                                    inimigoAlvo.vida -= dano
+
+                                    if (inimigoAlvo.vida <= 0) {
+                                        println("☠ ${inimigoAlvo.nome.name.formatarNome()} foi derrotado!")
+                                        territorioAtual.inimigos.remove(inimigoAlvo)
+
+                                        if (territorioAtual.inimigos.isEmpty()) {
+                                            println("🎉 Todos os inimigos foram derrotados!")
+                                            combateAtivo = false
+                                        }
+                                    }
+                                }
+
+                                is Inimigo -> {
+                                    if (!territorioAtual.inimigos.contains(entidade)) continue
+
+                                    if (!entidade.podeAgir()) {
+                                        println("\n⏳ ${entidade.nome.name.formatarNome()} está incapacitado!")
+                                        entidade.aplicarEfeitoStatus()
+                                        CMDHelper.pressionarEnterContinuar()
+                                        continue
+                                    }
+
+                                    val alvosPossiveis =
+                                        jogador.tropas.filter { it.status != StatusPersonagem.INVISIVEL }
+
+                                    if (alvosPossiveis.isEmpty()) continue
+
+                                    val tropaAlvo = alvosPossiveis.random()
+
+                                    println("\n▶ TURNO DO INIMIGO")
+                                    println("🩸 ${entidade.nome.name.formatarNome()} ➜ ${tropaAlvo.tipo.name.formatarNome()}")
+
+                                    val dano = entidade.decidirMovimento(tropaAlvo)
+                                    println("💥 Dano causado: $dano")
+
+                                    tropaAlvo.vida -= dano
+
+                                    if (tropaAlvo.vida <= 0) {
+                                        println("☠ ${tropaAlvo.tipo.name.formatarNome()} foi derrotado!")
+                                        jogador.tropas.remove(tropaAlvo)
+
+                                        if (jogador.tropas.isNotEmpty()) {
+                                            println()
+                                            println("⚠ Um aliado morreu. Deseja continuar o combate?")
+                                            println("[1] Continuar")
+                                            println("[2] Fugir")
+
+                                            if (readLine()?.trim() == "2") {
+                                                println("🏃 Você decidiu fugir do combate!")
+                                                combateAtivo = false
+                                            }
+                                        } else {
+                                            println("☠ Todas as suas tropas foram derrotadas!")
+                                            combateAtivo = false
+                                        }
+                                    }
+                                }
+                            }
+
+                            CMDHelper.pressionarEnterContinuar()
+                        }
                     }
                 }
-                jogador.territoriosDominados.add(jogador.territorioAtual)
+
+                if (territorioAtual.inimigos.isEmpty()) {
+                    jogador.territoriosDominados.add(jogador.territorioAtual)
+                }
             }
-
-
-//            AcoesJogador.Atacar -> {
-//                if (territorioAtual.inimigos.isEmpty()) {
-//                    println("Não há inimigos neste território.")
-//                    CMDHelper.pressionarEnterContinuar()
-//                } else {
-//
-//                    val ordemAtaque = mutableListOf<Any>()
-//
-//                    var iAliado = 0
-//                    var iInimigo = 0
-//                    var vezAliado = kotlin.random.Random.nextBoolean()
-//
-//                    while (iAliado < jogador.tropas.size || iInimigo < territorioAtual.inimigos.size) {
-//
-//                        if (vezAliado && iAliado < jogador.tropas.size) {
-//                            ordemAtaque.add(jogador.tropas[iAliado])
-//                            iAliado++
-//                        } else if (!vezAliado && iInimigo < territorioAtual.inimigos.size) {
-//                            ordemAtaque.add(territorioAtual.inimigos[iInimigo])
-//                            iInimigo++
-//                        }
-//
-//                        vezAliado = !vezAliado
-//
-//                        if (iAliado >= jogador.tropas.size) vezAliado = false
-//                        if (iInimigo >= territorioAtual.inimigos.size) vezAliado = true
-//                    }
-//
-//                    CMDHelper.limparTela()
-//                    println("\n⚔  ORDEM DE ATAQUE ⚔")
-//                    ordemAtaque.forEachIndexed { i, entidade ->
-//                        when (entidade) {
-//                            is Tropa -> println("${i + 1}. Aliado: ${entidade.tipo.name.formatarNome()}")
-//                            is Inimigo -> println("${i + 1}. Inimigo: ${entidade.nome.name.formatarNome()}")
-//                        }
-//                    }
-//
-//                    CMDHelper.pressionarEnterContinuar()
-//
-//                    for (entidade in ordemAtaque) {
-//
-//                        if (jogador.tropas.isEmpty()) {
-//                            println("☠ Todas as suas tropas foram derrotadas!")
-//                            CMDHelper.pressionarEnterContinuar()
-//                            break
-//                        }
-//
-//                        if (territorioAtual.inimigos.isEmpty()) {
-//                            println("Todos os inimigos foram derrotados!")
-//                            CMDHelper.pressionarEnterContinuar()
-//                            break
-//                        }
-//
-//                        when (entidade) {
-//
-//                            is Tropa -> {
-//
-//                                if (!jogador.tropas.contains(entidade)) continue
-//
-//                                val inimigoAlvo = territorioAtual.inimigos.random()
-//                                val nomeTropa = entidade.tipo.name.formatarNome()
-//
-//                                if(entidade.podeAgir()){
-//                                    CMDHelper.limparTela()
-//                                    println("$nomeTropa ataca ${inimigoAlvo.nome.name.formatarNome()}!")
-//
-//                                    val danoAtaque = entidade.decidirMovimento(jogador, inimigoAlvo)
-//                                    println("Dano causado: ${danoAtaque}")
-//
-//                                    inimigoAlvo.vida -= danoAtaque
-//
-//                                    if (inimigoAlvo.vida <= 0) {
-//                                        println("${inimigoAlvo.nome.name.formatarNome()} foi derrotado!")
-//                                        territorioAtual.inimigos.remove(inimigoAlvo)
-//                                    } else {
-//                                        println("${inimigoAlvo.nome.name.formatarNome()} agora tem ${inimigoAlvo.vida} ❤")
-//                                    }
-//                                }else{
-//                                    entidade.aplicarEfeitoStatus()
-//                                }
-//                            }
-//
-//                            is Inimigo -> {
-//
-//                                if (!territorioAtual.inimigos.contains(entidade)) continue
-//
-//                                val tropaAlvo = jogador.tropas.random()
-//                                val nomeTropa = tropaAlvo.tipo.name.formatarNome()
-//
-//                                if(entidade.podeAgir()){
-//                                    CMDHelper.limparTela()
-//                                    println("${entidade.nome.name.formatarNome()} ataca $nomeTropa!")
-//
-//                                    var danoAtaque = entidade.decidirMovimento(tropaAlvo)
-//                                    println("Dano causado: ${danoAtaque}")
-//
-//                                    tropaAlvo.vida -= danoAtaque
-//
-//                                    if (tropaAlvo.vida <= 0) {
-//                                        println("$nomeTropa foi derrotado!")
-//                                        jogador.tropas.remove(tropaAlvo)
-//                                    } else {
-//                                        println("$nomeTropa agora tem ${tropaAlvo.vida} ❤")
-//                                    }
-//                                }else{
-//                                    entidade.aplicarEfeitoStatus()
-//                                }
-//                            }
-//                        }
-//                        CMDHelper.pressionarEnterContinuar()
-//                    }
-//                    jogador.territoriosDominados.add(jogador.territorioAtual)
-//                }
-//            }
 
             AcoesJogador.Entrar -> {
                 CMDHelper.limparTela()
@@ -538,7 +461,7 @@ fun String.formatarNome(): String {
 fun consumirComida(jogador: Jogador, acaoUsu: AcoesJogador){
     val consumoBase: Int = jogador.tropas.size
     val consumoExtra = when (acaoUsu){
-        AcoesJogador.Andar -> 1
+        AcoesJogador.Andar -> 0
         AcoesJogador.Atacar -> 0
         AcoesJogador.Analisar_Territorio -> 0
         AcoesJogador.Entrar -> 0
@@ -550,6 +473,8 @@ fun consumirComida(jogador: Jogador, acaoUsu: AcoesJogador){
 
     val consumoTotal = consumoBase + consumoExtra
     jogador.comida -= consumoTotal
+
+    println("🍗 Suas tropas consumiram $consumoTotal de comida")
 }
 
 fun emboscada(jogador: Jogador, destino: Territorio) {
@@ -732,7 +657,7 @@ fun linhaHorizontal(larguraCelula: Int): String {
 
 
 fun criarJogador(mapa: Mapa) : Jogador {
-    return Jogador("Yuri", mapa.territorios[3])
+    return Jogador("Yuri", mapa.territorios[0])
 }
 
 fun barraVida(atual: Int, max: Int, tamanho: Int = 10): String {
@@ -749,15 +674,21 @@ fun mostrarPainelBatalha(jogador: Jogador, inimigos: List<Inimigo>) {
 
     println("\n🟦 ALIADOS")
     jogador.tropas.forEach {
-        println(
-            "• ${it.tipo.name.formatarNome()} " +
-                    "❤  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}"
-        )
+        if(it.status == StatusPersonagem.NADA){
+            println(
+                "• ${it.tipo.name.formatarNome()} " +
+                        "❤  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}"
+            )
+        }else{
+            println(
+                "• ${it.tipo.name.formatarNome()} " +
+                        "❤  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}   ${it.status.name.formatarNome()}"
+            )
+        }
     }
 
     println("\n🟥 INIMIGOS")
     inimigos.forEach {
-//        println("• ${it.nome.name.formatarNome()} ❤ ${it.vida}")
         println("• ${it.nome.name.formatarNome()} " +
                 "❤  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}")
     }
@@ -775,3 +706,21 @@ fun mostrarOrdemAtaque(ordemAtaque: List<Any>) {
     }
     println("FIM\n")
 }
+
+
+fun resolverDestino(
+    territorioAtual: Territorio,
+    mapa: Mapa,
+    input: String
+): Territorio? {
+
+    val comando = input.lowercase().trim()
+
+    val direcao = aliasesDirecao[comando]
+    if (direcao != null) {
+        return territorioAtual.vizinhos[direcao]
+    }
+
+    return mapa.encontrarTerritorio(input)
+}
+

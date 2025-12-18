@@ -23,3 +23,17 @@ class Territorio(
 enum class Direcao {
     NORTE, SUL, LESTE, OESTE
 }
+
+val aliasesDirecao = mapOf(
+    "cima" to Direcao.NORTE,
+    "norte" to Direcao.NORTE,
+
+    "baixo" to Direcao.SUL,
+    "sul" to Direcao.SUL,
+
+    "direita" to Direcao.LESTE,
+    "leste" to Direcao.LESTE,
+
+    "esquerda" to Direcao.OESTE,
+    "oeste" to Direcao.OESTE
+)

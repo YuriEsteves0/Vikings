@@ -24,6 +24,13 @@ abstract class Inimigo(
     }
 }
 
+class BonecoTeste : Inimigo(TiposInimigos.BONECO_TESTE, 10000, 10000, 0){
+    override fun habilidadeEspecial(inimigo: Tropa): Int {
+        println("Boneco de teste ficou la parado...")
+        return 0
+    }
+}
+
 class Lobo : Inimigo(TiposInimigos.LOBO, 6, 6, 3) {
     override fun habilidadeEspecial(inimigo: Tropa): Int {
         return if ((1..100).random() <= 30) {
@@ -79,5 +86,5 @@ class GoblinMago : Inimigo(TiposInimigos.GOBLIN_MAGO, 4, 4, 1){
 }
 
 enum class TiposInimigos{
-    LOBO, ORC, GOBLIN_GUERREIRO, GOBLIN_MAGO, GOBLIN_ARQUEIRO
+    LOBO, ORC, GOBLIN_GUERREIRO, GOBLIN_MAGO, GOBLIN_ARQUEIRO, BONECO_TESTE
 }

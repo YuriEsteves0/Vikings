@@ -3,6 +3,7 @@ package Model.Personagem
 import Model.Efeitos.Grimorio
 import Model.Efeitos.Item
 import Model.Efeitos.Magia
+import formatarNome
 
 abstract class Tropa(
     val tipo: TiposTropa,
@@ -12,23 +13,40 @@ abstract class Tropa(
     var magiasConhecidas: MutableList<Magia> = mutableListOf(
         Grimorio.bolaDeFogo,
         Grimorio.curaSimples,
-        Grimorio.sono
     ),
-    var statusPersonagem: StatusPersonagem = StatusPersonagem.NADA,
-) : Personagem(vida, vidaTotal, ataque, statusPersonagem) {
+    statusInicial: StatusPersonagem = StatusPersonagem.NADA
+) : Personagem(vida, vidaTotal, ataque, statusInicial) {
 
     abstract fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int
     abstract fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int
 
+    fun atualizarBuff() {
+        if (turnosStatus > 0) {
+            turnosStatus--
+        }
+    }
+
+
     fun decidirMovimento(jogador: Jogador, inimigo: Inimigo): Int {
+        if (status == StatusPersonagem.INVISIVEL) {
+            println("🗡️ ATAQUE FURTIVO!")
+            status = StatusPersonagem.NADA
+            turnosStatus = 0
+            return ataque * 2
+        }
+
         aplicarEfeitoStatus()
 
-        return if ((1..10).random() <= 5) {
+        val dano = if ((1..10).random() <= 5) {
             ataqueNormal(jogador, inimigo)
         } else {
             habilidadeEspecial(jogador, inimigo)
         }
+
+        atualizarBuff()
+        return dano
     }
+
 }
 
 class Guerreiro : Tropa(TiposTropa.GUERREIRO, 18, 18, 5) {
@@ -80,15 +98,19 @@ class Mago : Tropa(TiposTropa.MAGO, 8, 8, 2) {
         return ataque + jogador.bonusMagoAT
     }
 
-    fun decidirMagia() : Magia{
-        if (vida <= vidaTotal / 2){
-            return Grimorio.curaSimples
+    fun decidirMagia(): Magia {
+        if (status != StatusPersonagem.INVISIVEL) {
+            magiasConhecidas.find { it == Grimorio.invisivel }?.let {
+                println("Mago usou o feitiço Invisibilidade")
+                return it
+            }
         }
 
         val magiaAleatoria = magiasConhecidas.random()
-        println("Mago lançou ${magiaAleatoria.nome}")
+        println("Mago usou o feitiço ${magiaAleatoria.nome}")
         return magiaAleatoria
     }
+
 }
 
 enum class TiposTropa{

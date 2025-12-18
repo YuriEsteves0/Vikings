@@ -1,0 +1,111 @@
+MAPA ANTIGO CODIGO
+
+val baldurheim = Territorio(
+            "Baldurheim",
+            listOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Entrar,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            listOf(
+                Estruturas.Ferreiro
+            ),
+        )
+
+        val rio = Territorio(
+            "Rio",
+            listOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            listOf(
+                //Estruturas
+            ),
+            mutableListOf(
+                Lobo(),
+                Lobo(),
+            )
+        )
+
+        val floresta = Territorio(
+            "Floresta",
+            listOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            listOf(
+                // Estruturas
+            ),
+            mutableListOf(
+                GoblinArqueiro(),
+                GoblinMago(),
+                GoblinGuerreiro()
+            )
+        )
+
+        val valkstad = Territorio(
+            "Valkstad",
+            listOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Entrar,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            listOf(
+                Estruturas.Taverna
+            )
+        )
+
+        val caverna = Territorio(
+            "Caverna",
+            listOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Entrar,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair,
+            ),
+            listOf(
+                Estruturas.Caverna
+            ),
+            mutableListOf(
+                GoblinMago(),
+                GoblinGuerreiro(),
+                GoblinGuerreiro(),
+                GoblinGuerreiro(),
+                GoblinArqueiro(),
+            ),
+        )
+
+        adicionarVizinhos(baldurheim, floresta, Direcao.LESTE)
+        adicionarVizinhos(floresta, rio, Direcao.LESTE)
+        adicionarVizinhos(rio, valkstad, Direcao.SUL)
+        adicionarVizinhos(valkstad, caverna, Direcao.SUL)
+
+        territorios.add(baldurheim)
+        territorios.add(floresta)
+        territorios.add(rio)
+        territorios.add(valkstad)
+        territorios.add(caverna)

@@ -8,14 +8,12 @@ class Jogador(
     var nome: String,
     var territorioAtual: Territorio,
     val tropas: MutableList<Tropa> = mutableListOf(
-//        Guerreiro(),
+        Guerreiro(),
         Mago(),
-        Mago(),
-        Mago(),
-//        Arqueiro()
+        Arqueiro()
     ),
     var ouro: Int = 20,
-    var comida: Int = 10,
+    var comida: Int = 24,
     var territoriosDominados: MutableList<Territorio> = mutableListOf(territorioAtual),
     var inventario: MutableList<Item> = mutableListOf(
         Itens.pocaoCura,

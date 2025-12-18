@@ -16,9 +16,9 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
             println()
             println("Taverneiro: Olá viajante! O que o senhor veio fazer por aqui?")
             println()
-            println("1. Descansar (5 ouro → +2 hp)")
-            println("2. Comer (3 ouro → +3 comida)")
-            println("3. Contratar soldados (8 ouro → +2 soldados)")
+            println("1. Descansar (5 ouro → +2 hp) ")
+            println("2. Comer (3 ouro → +3 comida) ")
+            println("3. Contratar soldados (8 ouro → +2 soldados) ")
             println("0. Sair")
 
             when (readLine()) {

@@ -3,6 +3,7 @@ package Model.Efeitos
 import Model.Personagem.Personagem
 import Model.Personagem.StatusPersonagem
 import Model.Personagem.Tropa
+import formatarNome
 
 
 class Magia(
@@ -13,7 +14,6 @@ class Magia(
     val chanceStatus: Int = 0,
     val statusAplicado: StatusPersonagem? = null
 ) {
-
     fun executar(caster: Tropa, alvo: Personagem): Int {
         return when (tipo) {
             TiposMagia.DANO -> {
@@ -33,16 +33,37 @@ class Magia(
                 println("${caster.javaClass.simpleName} foi curado em $cura")
                 0
             }
+
+            TiposMagia.BUFF -> {
+                if (statusAplicado != null && (1..100).random() <= chanceStatus) {
+
+                    caster.status = statusAplicado
+                    caster.turnosStatus = poder
+
+                    println("✨ ${caster.tipo.name.formatarNome()} recebeu o buff $statusAplicado por $poder turno(s)")
+                }
+
+                0
+            }
         }
     }
 }
 
 
 enum class TiposMagia{
-    DANO, CURA
+    DANO, CURA, BUFF
 }
 
 object Grimorio {
+
+    val invisivel = Magia(
+        nome = "Invisibilidade",
+        descricao = "Deixa o conjurador invisível por uma rodada",
+        tipo = TiposMagia.BUFF,
+        poder = 1,
+        chanceStatus = 100,
+        statusAplicado = StatusPersonagem.INVISIVEL
+    )
 
     val sono = Magia(
         nome = "Sono",

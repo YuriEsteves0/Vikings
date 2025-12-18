@@ -7,6 +7,7 @@ abstract class Personagem (
     open var vidaTotal: Int,
     open var ataque: Int,
     open var status: StatusPersonagem,
+    var turnosStatus: Int = 0
 ){
     fun aplicarEfeitoStatus(){
         when (status){
@@ -24,7 +25,7 @@ abstract class Personagem (
             }
 
             StatusPersonagem.INVISIVEL -> {
-                println("Fazendo ainda")
+                println("O personagem está invisivel...")
             }
         }
     }

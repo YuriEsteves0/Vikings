@@ -5,7 +5,7 @@ tem alguma porra errada no ferreiro
 sistema de salvar
 fazer o status de dormindo e de invisivel
 
-mapa desenhado
+MAPA ANTIGO
 
                     vila goblin --- praia
                          |         |
@@ -14,3 +14,22 @@ baldur --- floresta --- rio --- aldeia
                       valkstad
                          |
                       caverna (boss)
+
+MAPA NOVO
+
+                  [ Ruínas Antigas ]
+                          |
+                          |
+[ Porto Velho ] ── [ Estrada Real ] ── [ Capital de Auren ]
+      |                   |                     |
+      |                   |                     |
+[ Pântano ] ── ── [Igreja Antiga] ── ── [ Vila de Valkstad ]
+      |                   |                     |
+      |                   |                     |
+[ Floresta Sombria ] ── [ Planície ] ── [ Caverna Profunda ]
+                          |
+                          |
+                    [ Montanhas ]
+
+IGREJA ANTIGA ESTÁ BLOQUEADA E SÓ PODE SER ACESSADA COM UM ITEM ENCONTRADO NAS MONSTRANHAS.
+AO ENTRAR NA IGREJA ANTIGA TERÁ UM PORTAL ONDE LEVARÁ PARA UM SEGUNDO MAPA

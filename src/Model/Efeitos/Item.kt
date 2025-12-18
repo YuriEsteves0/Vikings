@@ -29,7 +29,7 @@ class Item(
 
             TiposItens.EVASAO -> {
                 if (alvo == null) return
-                alvo.statusPersonagem = StatusPersonagem.INVISIVEL
+                alvo.status = StatusPersonagem.INVISIVEL
                 println("${alvo.tipo.name.formatarNome()} ficou invisível 👁")
             }
         }
