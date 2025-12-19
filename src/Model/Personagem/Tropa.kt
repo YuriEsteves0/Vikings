@@ -2,6 +2,7 @@ package Model.Personagem
 
 import Model.Efeitos.Grimorio
 import Model.Efeitos.Magia
+import Model.Estruturas.Mapa
 
 abstract class Tropa(
     val tipo: TiposTropa,
@@ -15,7 +16,7 @@ abstract class Tropa(
     statusInicial: StatusPersonagem = StatusPersonagem.NADA
 ) : Personagem(vida, vidaTotal, ataque, statusInicial) {
 
-    abstract fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int
+    abstract fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo, mapa: Mapa): Int
     abstract fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int
 
     abstract fun habilidadeEspecialDescricao(): String
@@ -26,7 +27,7 @@ abstract class Tropa(
         }
     }
 
-    fun decidirMovimento(jogador: Jogador, inimigo: Inimigo): Int {
+    fun decidirMovimento(jogador: Jogador, inimigo: Inimigo, mapa: Mapa): Int {
         if (status == StatusPersonagem.INVISIVEL) {
             println("🗡️ ATAQUE FURTIVO!")
             status = StatusPersonagem.NADA
@@ -39,7 +40,7 @@ abstract class Tropa(
         val dano = if ((1..10).random() <= 5) {
             ataqueNormal(jogador, inimigo)
         } else {
-            habilidadeEspecial(jogador, inimigo)
+            habilidadeEspecial(jogador, inimigo, mapa)
         }
 
         atualizarBuff()
@@ -53,7 +54,7 @@ class Guerreiro : Tropa(TiposTropa.GUERREIRO, 15, 15, 5) {
         return ataque + jogador.bonusGuerreiroAT
     }
 
-    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
+    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo, mapa: Mapa): Int {
         println("Guerreiro usou ataque especial!")
         return ataque + jogador.bonusGuerreiroAT + 1
     }
@@ -70,7 +71,7 @@ class Arqueiro : Tropa(TiposTropa.ARQUEIRO, 10, 10, 3) {
         return ataque + jogador.bonusArqueiroAT
     }
 
-    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
+    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo, mapa: Mapa): Int {
         println("Arqueiro dispara Flecha de Fogo!")
 
         val chanceDeAcerto = (1..100).random()
@@ -96,9 +97,9 @@ class Arqueiro : Tropa(TiposTropa.ARQUEIRO, 10, 10, 3) {
 }
 
 class Mago : Tropa(TiposTropa.MAGO, 8, 8, 2) {
-    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
+    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo, mapa: Mapa): Int {
         var magia = decidirMagia()
-        return magia.executar(this, inimigo)
+        return magia.executar(this, inimigo, jogador, mapa)
     }
 
     override fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int {
@@ -125,7 +126,7 @@ class Mago : Tropa(TiposTropa.MAGO, 8, 8, 2) {
 }
 
 class InvocadorAliado : Tropa(TiposTropa.INVOCADOR, 12, 12, 3){
-    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
+    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo, mapa: Mapa): Int {
         for(tropa in jogador.tropas){
             if(tropa.tipo == TiposTropa.LOBO){
                 return ataque + jogador.bonusInvocador
@@ -148,7 +149,7 @@ class InvocadorAliado : Tropa(TiposTropa.INVOCADOR, 12, 12, 3){
 }
 
 class LoboAliado : Tropa(TiposTropa.LOBO, 6, 6, 3) {
-    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
+    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo, mapa: Mapa): Int {
         return if ((1..100).random() <= 30) {
             println("O Lobo atacou duas vezes!")
             ataque + 1

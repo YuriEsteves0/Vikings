@@ -36,7 +36,7 @@ fun main() {
 
         // CONFIG MOMENTOS CHAVE
 
-        if(jogador.andadasAposInvestimentoFazenda == 0){
+        if(jogador.eventosChave.contains(EventosChave.INVESTIMENTO_FAZENDA) && jogador.andadasAposInvestimentoFazenda == 8){
             println("Talvez eu devesse dar uma olhada na fazenda...")
             println()
         }
@@ -268,7 +268,7 @@ fun main() {
                                     println("\nTURNO DO ALIADO")
                                     println("${entidade.tipo.name.formatarNome()} ➜ ${inimigoAlvo.nome.name.formatarNome()}")
 
-                                    var dano = entidade.decidirMovimento(jogador, inimigoAlvo)
+                                    var dano = entidade.decidirMovimento(jogador, inimigoAlvo, mapa)
 
                                     // CONFIGURAÇÃO DE STATUS DE PERSONAGEM
 
@@ -505,8 +505,11 @@ fun main() {
                     escolherTropa(jogador)
                 } else null
 
-                itemEscolhido.usar(alvo)
-                jogador.inventario.removeAt(escolha)
+                itemEscolhido.usar(alvo, jogador, mapa)
+
+                if (itemEscolhido.deveConsumir()) {
+                    jogador.inventario.removeAt(escolha)
+                }
 
                 CMDHelper.pressionarEnterContinuar()
             }
@@ -750,7 +753,7 @@ fun linhaHorizontal(larguraCelula: Int): String {
 
 
 fun criarJogador(mapa: Mapa) : Jogador {
-    return Jogador("Yuri", mapa.territorios[14])
+    return Jogador("Jogador", mapa.territorios[0])
 }
 
 fun barraVida(atual: Int, max: Int, tamanho: Int = 10): String {

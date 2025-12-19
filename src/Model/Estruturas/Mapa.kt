@@ -384,6 +384,7 @@ class Mapa{
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
                 AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
                 AcoesJogador.Informações_Do_Reino,
                 AcoesJogador.Ajuda,
                 AcoesJogador.Sair
@@ -400,6 +401,7 @@ class Mapa{
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
                 AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
                 AcoesJogador.Informações_Do_Reino,
                 AcoesJogador.Ajuda,
                 AcoesJogador.Sair

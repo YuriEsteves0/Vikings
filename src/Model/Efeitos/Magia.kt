@@ -1,9 +1,10 @@
 package Model.Efeitos
 
+import Helper.CMDHelper
+import Model.Estruturas.Mapa
+import Model.Personagem.Jogador
 import Model.Personagem.Personagem
 import Model.Personagem.StatusPersonagem
-import Model.Personagem.Tropa
-import formatarNome
 
 
 class Magia(
@@ -14,7 +15,7 @@ class Magia(
     val chanceStatus: Int = 0,
     val statusAplicado: StatusPersonagem? = null
 ) {
-    fun executar(caster: Personagem, alvo: Personagem): Int {
+    fun executar(caster: Personagem, alvo: Personagem, jogador: Jogador, mapa: Mapa): Int {
         return when (tipo) {
             TiposMagia.DANO -> {
                 val dano = poder + caster.ataque
@@ -43,7 +44,7 @@ class Magia(
                     // Poder aqui, se encaixa como se fosse a quantidade de turnos que o alvo irá ficar com o efeito
                     caster.turnosStatus = poder
 
-                    println("✨ ${caster.javaClass.simpleName} recebeu o buff $statusAplicado por $poder turno(s)")
+                    println("${caster.javaClass.simpleName} recebeu o buff $statusAplicado por $poder turno(s)")
                 }
 
                 0
@@ -57,19 +58,58 @@ class Magia(
                     // Poder aqui, se encaixa como se fosse a quantidade de turnos que o alvo irá ficar com o efeito
                     alvo.turnosStatus = poder
 
-                    println("🫢 ${alvo.javaClass.simpleName} recebeu o debuff $statusAplicado por $poder turno(s)")
+                    println("${alvo.javaClass.simpleName} recebeu o debuff $statusAplicado por $poder turno(s)")
                 }
 
                 0
             }
+
+//            TiposMagia.TELEPORTE -> {
+//                if (jogador == null || mapa == null) {
+//                    println("A magia falhou.")
+//                    return 0
+//                }
+//
+//                println("Escolha o destino do teleporte:")
+//                println("| 1. Taverna")
+//                println("| 2. Ferreiro")
+//                print("Opção: ")
+//
+//                when (readLine()) {
+//                    "1" -> {
+//                        val destino = jogador.ultimoTerritorioComTaverna
+//                        if (destino != null) {
+//                            jogador.territorioAtual = mapa.encontrarTerritorio(destino)!!
+//                            println("Você é envolto por runas e surge em uma taverna conhecida...")
+//                        } else {
+//                            println("Você nunca visitou uma taverna.")
+//                        }
+//                    }
+//
+//                    "2" -> {
+//                        val destino = jogador.ultimoTerritorioComFerreiro
+//                        if (destino != null) {
+//                            jogador.territorioAtual = mapa.encontrarTerritorio(destino)!!
+//                            println("O ar se distorce e você surge próximo a uma forja antiga...")
+//                        } else {
+//                            println("Você nunca visitou um ferreiro.")
+//                        }
+//                    }
+//
+//                    else -> println("A magia se dissipa sem efeito.")
+//                }
+//
+//                CMDHelper.pressionarEnterContinuar()
+//                0
+//            }
         }
     }
 }
 
-
-enum class TiposMagia{
+enum class TiposMagia {
     DANO, CURA, BUFF, DEBUFF
 }
+
 
 object Grimorio {
 
@@ -115,6 +155,14 @@ object Grimorio {
         tipo = TiposMagia.CURA,
         poder = 5
     )
+
+//    val teleporteRunico = Magia(
+//        nome = "Passagem Rúnica",
+//        descricao = "Permite ao conjurador se teleportar para a última Taverna ou Ferreiro visitado",
+//        tipo = TiposMagia.TELEPORTE,
+//        poder = 0
+//    )
+
 
     private val magias = listOf(
         invisivel,

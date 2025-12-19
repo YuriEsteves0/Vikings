@@ -12,6 +12,8 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
     // ELE JA LIMPA A TELA ANTERIORMENTE, NAO PRECISA FAZER ISSO
     Taverna {
         override fun funcaoEstrutura(jogador: Jogador, mapa: Mapa) {
+            jogador.ultimoTerritorioComTaverna = jogador.territorioAtual.nome
+
             CMDHelper.limparTela()
             println()
             println("*--- TAVERNA ---*")
@@ -88,6 +90,7 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
     Ferreiro{
         override fun funcaoEstrutura(jogador: Jogador, mapa: Mapa) {
             CMDHelper.limparTela()
+            jogador.ultimoTerritorioComFerreiro = jogador.territorioAtual.nome
 
             println("*--- FERREIRO ---*")
             println()
@@ -711,7 +714,6 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
         override fun funcaoEstrutura(jogador: Jogador, mapa: Mapa) {
 
             val ANDADAS_PARA_DIVIDENDOS = 8
-
 
             CMDHelper.limparTela()
             println("Você chega em um grande campo amarelado.")

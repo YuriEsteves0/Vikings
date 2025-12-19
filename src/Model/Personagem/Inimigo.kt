@@ -96,7 +96,7 @@ class GoblinMago : Inimigo(TiposInimigos.GOBLIN_MAGO, 4, 4, 1, 1){
     override fun habilidadeEspecial(inimigo: Tropa, mapa: Mapa, jogador: Jogador): Int {
 
         var magia = decidirMagia()
-        return magia.executar(this, inimigo)
+        return magia.executar(this, inimigo, jogador, mapa)
 
         return 0
     }
@@ -111,7 +111,7 @@ class GoblinMago : Inimigo(TiposInimigos.GOBLIN_MAGO, 4, 4, 1, 1){
 class Bruxa : Inimigo(TiposInimigos.BRUXA, 7, 7, 3, 5){
     override fun habilidadeEspecial(inimigo: Tropa, mapa: Mapa, jogador: Jogador): Int {
         var magia = decidirMagia()
-        return magia.executar(this, inimigo)
+        return magia.executar(this, inimigo, jogador, mapa)
 
         return 0
     }
@@ -143,7 +143,7 @@ class ArmaduraEnfeiticada : Inimigo(TiposInimigos.ARMADURA_ENFEITICADA, 30, 30, 
         val chance = random.nextInt(1, 101)
         if(chance <= 20){
             val magia = magiasConhecidas[1] // Cura Simples
-            magia.executar(this, inimigo)
+            magia.executar(this, inimigo, jogador, mapa)
         }
         return ataque
     }
@@ -360,7 +360,6 @@ class Viking : Inimigo(TiposInimigos.VIKING,vida = 18,vidaTotal = 18,ataque = 4,
         }
     }
 }
-
 
 enum class TiposInimigos{
     LOBO,

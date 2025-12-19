@@ -20,8 +20,10 @@ class Jogador(
     var procurado: MutableList<Territorio> = mutableListOf(),
     var territoriosDominados: MutableList<Territorio> = mutableListOf(territorioAtual),
     var inventario: MutableList<Item> = mutableListOf(
-        Itens.chaveIgreja
-    )
+    ),
+    var ultimoTerritorioComTaverna: String? = null,
+    var ultimoTerritorioComFerreiro: String? = null
+
 ){
     var bonusGuerreiroAT = 0
     var bonusMagoAT = 0
