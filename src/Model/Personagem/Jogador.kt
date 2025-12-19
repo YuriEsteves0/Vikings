@@ -2,6 +2,7 @@ package Model.Personagem
 
 import Model.Efeitos.Item
 import Model.Efeitos.Itens
+import Model.Estruturas.Estruturas
 import Model.Estruturas.Territorio
 import formatarNome
 
@@ -15,6 +16,7 @@ class Jogador(
     ),
     var ouro: Int = 20,
     var comida: Int = 42,
+    var procurado: MutableList<Territorio> = mutableListOf(),
     var territoriosDominados: MutableList<Territorio> = mutableListOf(territorioAtual),
     var inventario: MutableList<Item> = mutableListOf(
     )

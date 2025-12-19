@@ -2,6 +2,7 @@ package Model.Personagem
 
 import Model.Efeitos.Grimorio
 import Model.Efeitos.Magia
+import formatarNome
 
 abstract class Inimigo(
     val nome: TiposInimigos,
@@ -112,6 +113,14 @@ class GoblinMago : Inimigo(TiposInimigos.GOBLIN_MAGO, 4, 4, 1, 1){
 //    }
 //}
 
+class Guarda : Inimigo(TiposInimigos.GUARDA, 22, 22, 3,0){
+    override fun habilidadeEspecial(inimigo: Tropa): Int {
+        inimigo.status = StatusPersonagem.ENFRAQUECIDO
+        println("O guarda enfraqueceu o ${inimigo.tipo.toString().formatarNome()}")
+        return 0
+    }
+}
+
 
 enum class TiposInimigos{
     LOBO,
@@ -125,7 +134,8 @@ enum class TiposInimigos{
     DRAGAO,
     MIMICO,
     ESQUELETO,
-    CICLOPE
+    CICLOPE,
+    GUARDA
 }
 
 // esqueleto depois de atacar ele morre '-'

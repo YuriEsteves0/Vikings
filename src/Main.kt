@@ -104,68 +104,75 @@ fun main() {
                     }
                 }
             }
+
             AcoesJogador.Analisar_Territorio -> {
-                println("Digite o nome do lugar que você quer analisar:")
-                println("(EX: montanha / rio)")
-                val entrada = readLine() ?: ""
-
-                val nomeTerritorio = entrada.lowercase(Locale.getDefault())
-                val destino = mapa.encontrarTerritorio(nomeTerritorio)
-
-                if (destino == null) {
+                if(jogador.territorioAtual.inimigos.isNotEmpty()){
                     CMDHelper.limparTela()
-                    println("Território não encontrado!")
+                    println("Você não pode analisar territorios no momento, há inimigos por perto")
                     CMDHelper.pressionarEnterContinuar()
-                } else if (territoriosAnalisados.contains(destino.nome)) {
-                    CMDHelper.limparTela()
-                    println("Território já analisado")
-                    CMDHelper.pressionarEnterContinuar()
-                } else {
-                    CMDHelper.limparTela()
-                    val numeroDado = DadoHelper.girarD20()
-                    val sorte = DadoHelper.verificarSorte(Dados.D20, numeroDado, false)
+                }else{
+                    println("Digite o nome do lugar que você quer analisar:")
+                    println("(EX: montanha / rio)")
+                    val entrada = readLine() ?: ""
 
-                    println()
-                    println("Número do dado: $numeroDado/20")
-                    println()
-                    fun estimativa(real: Int, percentualErro: Double, erroMin: Int = 1): Int {
-                        if (real <= 0) return 0
+                    val nomeTerritorio = entrada.lowercase(Locale.getDefault())
+                    val destino = mapa.encontrarTerritorio(nomeTerritorio)
 
-                        val erroCalculado = maxOf((real * percentualErro).toInt(), erroMin)
-                        val min = maxOf(real - erroCalculado, 0)
-                        val max = real + erroCalculado
+                    if (destino == null) {
+                        CMDHelper.limparTela()
+                        println("Território não encontrado!")
+                        CMDHelper.pressionarEnterContinuar()
+                    } else if (territoriosAnalisados.contains(destino.nome)) {
+                        CMDHelper.limparTela()
+                        println("Território já analisado")
+                        CMDHelper.pressionarEnterContinuar()
+                    } else {
+                        CMDHelper.limparTela()
+                        val numeroDado = DadoHelper.girarD20()
+                        val sorte = DadoHelper.verificarSorte(Dados.D20, numeroDado, false)
 
-                        return (min..max).random()
+                        println()
+                        println("Número do dado: $numeroDado/20")
+                        println()
+                        fun estimativa(real: Int, percentualErro: Double, erroMin: Int = 1): Int {
+                            if (real <= 0) return 0
+
+                            val erroCalculado = maxOf((real * percentualErro).toInt(), erroMin)
+                            val min = maxOf(real - erroCalculado, 0)
+                            val max = real + erroCalculado
+
+                            return (min..max).random()
+                        }
+
+                        when (sorte) {
+                            SorteStatus.FALHA_CRITICA, SorteStatus.FALHA -> {
+                                println("Falha ao analisar ${destino.nome}")
+                                territoriosAnalisados[destino.nome] = SorteStatus.FALHA
+                            }
+
+                            SorteStatus.OK -> {
+                                val soldados = estimativa(destino.inimigos.size, 0.75)
+                                println("O território ${destino.nome} tem aproximadamente $soldados soldados")
+                                territoriosAnalisados[destino.nome] = SorteStatus.OK
+                            }
+
+                            SorteStatus.SUCESSO -> {
+                                val soldados = estimativa(destino.inimigos.size, 0.35)
+                                println("O território ${destino.nome} tem entre ${soldados - 1}~${soldados + 1} soldados")
+                                territoriosAnalisados[destino.nome] = SorteStatus.SUCESSO
+                            }
+
+                            SorteStatus.SUCESSO_CRITICO -> {
+                                println(
+                                    "O território ${destino.nome} tem ${destino.inimigos.size} soldados " +
+                                            "e ${destino.estruturas.size} estruturas"
+                                )
+                                territoriosAnalisados[destino.nome] = SorteStatus.SUCESSO_CRITICO
+                            }
+                        }
+
+                        CMDHelper.pressionarEnterContinuar()
                     }
-
-                    when (sorte) {
-                        SorteStatus.FALHA_CRITICA, SorteStatus.FALHA -> {
-                            println("Falha ao analisar ${destino.nome}")
-                            territoriosAnalisados[destino.nome] = SorteStatus.FALHA
-                        }
-
-                        SorteStatus.OK -> {
-                            val soldados = estimativa(destino.inimigos.size, 0.75)
-                            println("O território ${destino.nome} tem aproximadamente $soldados soldados")
-                            territoriosAnalisados[destino.nome] = SorteStatus.OK
-                        }
-
-                        SorteStatus.SUCESSO -> {
-                            val soldados = estimativa(destino.inimigos.size, 0.35)
-                            println("O território ${destino.nome} tem entre ${soldados - 1}~${soldados + 1} soldados")
-                            territoriosAnalisados[destino.nome] = SorteStatus.SUCESSO
-                        }
-
-                        SorteStatus.SUCESSO_CRITICO -> {
-                            println(
-                                "O território ${destino.nome} tem ${destino.inimigos.size} soldados " +
-                                        "e ${destino.estruturas.size} estruturas"
-                            )
-                            territoriosAnalisados[destino.nome] = SorteStatus.SUCESSO_CRITICO
-                        }
-                    }
-
-                    CMDHelper.pressionarEnterContinuar()
                 }
             }
 
@@ -240,7 +247,13 @@ fun main() {
                                     println("\nTURNO DO ALIADO")
                                     println("${entidade.tipo.name.formatarNome()} ➜ ${inimigoAlvo.nome.name.formatarNome()}")
 
-                                    val dano = entidade.decidirMovimento(jogador, inimigoAlvo)
+                                    var dano = entidade.decidirMovimento(jogador, inimigoAlvo)
+
+                                    if(entidade.status == StatusPersonagem.ENFRAQUECIDO){
+                                        dano -= 2
+                                        entidade.aplicarEfeitoStatus()
+                                    }
+
                                     println("Dano causado: $dano")
 
                                     inimigoAlvo.vida -= dano
@@ -277,7 +290,13 @@ fun main() {
                                     println("\nTURNO DO INIMIGO")
                                     println("${entidade.nome.name.formatarNome()} ➜ ${tropaAlvo.tipo.name.formatarNome()}")
 
-                                    val dano = entidade.decidirMovimento(tropaAlvo)
+                                    var dano = entidade.decidirMovimento(tropaAlvo)
+
+                                    if(entidade.status == StatusPersonagem.ENFRAQUECIDO){
+                                        dano -= 2
+                                        entidade.aplicarEfeitoStatus()
+                                    }
+
                                     println("Dano causado: $dano")
 
                                     tropaAlvo.vida -= dano
@@ -315,38 +334,44 @@ fun main() {
             }
 
             AcoesJogador.Entrar -> {
-                CMDHelper.limparTela()
-                println()
-                println("*-----* ESTRUTURAS *-----*")
-
-                val territorioAtual = mapa.encontrarTerritorio(jogador.territorioAtual.nome)
-
-                if (territorioAtual == null) {
-                    println("Território não encontrado!")
-                    break
-                }
-
-                val estruturasDoTerritorio = territorioAtual.estruturas
-                val ordemEstruturas = mutableMapOf<Int, Estruturas>()
-
-                estruturasDoTerritorio.forEachIndexed { i, estrutura ->
-                    println("| $i. $estrutura")
-                    ordemEstruturas[i] = estrutura
-                }
-
-                println("*-----*------------*-----*")
-                println()
-
-                print("Digite sua ação: ")
-                val entrada = readLine() ?: ""
-                val indice = entrada.toIntOrNull() ?: -1
-
-                if (indice in ordemEstruturas) {
-                    val estruturaEscolhida = ordemEstruturas[indice]
+                if(jogador.territorioAtual.inimigos.isNotEmpty()){
                     CMDHelper.limparTela()
-                    estruturaEscolhida?.funcaoEstrutura(jogador, mapa)
-                } else {
-                    println("Opção de estrutura inválida!")
+                    println("Você não pode entrar em estruturas no momento, há inimigos por perto")
+                    CMDHelper.pressionarEnterContinuar()
+                }else{
+                    CMDHelper.limparTela()
+                    println()
+                    println("*-----* ESTRUTURAS *-----*")
+
+                    val territorioAtual = mapa.encontrarTerritorio(jogador.territorioAtual.nome)
+
+                    if (territorioAtual == null) {
+                        println("Território não encontrado!")
+                        break
+                    }
+
+                    val estruturasDoTerritorio = territorioAtual.estruturas
+                    val ordemEstruturas = mutableMapOf<Int, Estruturas>()
+
+                    estruturasDoTerritorio.forEachIndexed { i, estrutura ->
+                        println("| $i. $estrutura")
+                        ordemEstruturas[i] = estrutura
+                    }
+
+                    println("*-----*------------*-----*")
+                    println()
+
+                    print("Digite sua ação: ")
+                    val entrada = readLine() ?: ""
+                    val indice = entrada.toIntOrNull() ?: -1
+
+                    if (indice in ordemEstruturas) {
+                        val estruturaEscolhida = ordemEstruturas[indice]
+                        CMDHelper.limparTela()
+                        estruturaEscolhida?.funcaoEstrutura(jogador, mapa)
+                    } else {
+                        println("Opção de estrutura inválida!")
+                    }
                 }
             }
 
@@ -666,7 +691,7 @@ fun criarMapa(jogador: Jogador, mapa: Mapa) {
 
 fun nomeComInimigos(territorio: Territorio) : String{
     return if(territorio.inimigos.isNotEmpty() || territorio.inimigos.size > 0){
-        "AT  ${territorio.nome} ⚔ "
+        "!  ${territorio.nome} ! "
     }else{
         territorio.nome
     }

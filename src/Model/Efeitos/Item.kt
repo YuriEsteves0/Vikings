@@ -9,6 +9,8 @@ class Item(
     val descricao: String,
     val tipo: TiposItens,
     val poder: Int,
+    val preco: Int,
+    val vendivel: Boolean,
     val precisaAlvo: Boolean = false
 ) {
     fun usar(alvo: Tropa?) {
@@ -45,12 +47,19 @@ enum class TiposItens{
     CURA, BUFF, EVASAO, MISSAO
 }
 
+val itensInstanciados: List<Item> = listOf(
+    Itens.pocaoCura,
+    Itens.chaveIgreja
+)
+
 object Itens {
     val pocaoCura = Item(
         nome = "Poção de Cura",
         descricao = "Cura uma tropa em 3 de vida",
         tipo = TiposItens.CURA,
         poder = 3,
+        preco = 2,
+        vendivel = true,
         precisaAlvo = true
     )
 
@@ -58,6 +67,8 @@ object Itens {
         nome = "Chave da Igreja Antiga",
         descricao = "Uma chave antiga que serve para destrancar as portas da Igreja Antiga",
         tipo = TiposItens.MISSAO,
+        preco = 0,
+        vendivel = false,
         poder = 0
     )
 }

@@ -4,9 +4,8 @@ import Helper.CMDHelper
 import Helper.DadoHelper.Companion.random
 import Model.Efeitos.Grimorio
 import Model.Efeitos.Itens
-import Model.Efeitos.Magia
+import Model.Efeitos.itensInstanciados
 import Model.Personagem.*
-import kotlin.math.log
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -20,8 +19,8 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
             println()
             println("Taverneiro: Olá viajante! O que o senhor veio fazer por aqui?")
             println()
-            println("1. Descansar (5 ouro → +2 hp) ")
-            println("2. Comer (3 ouro → +3 comida) ")
+            println("1. Descansar (5 ouro → +10 hp) ")
+            println("2. Comer (3 ouro → +10 comida) ")
             println("3. Contratar soldados (8 ouro → +1 soldados) ")
             println("0. Sair")
 
@@ -38,7 +37,7 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
             if (jogador.ouro >= 5) {
                 jogador.ouro -= 5
                 for(tropa in jogador.tropas){
-                    tropa.vida = (tropa.vida + 2).coerceAtMost(tropa.vidaTotal)
+                    tropa.vida = (tropa.vida + 10).coerceAtMost(tropa.vidaTotal)
                 }
                 println("Seus soldados descansaram e se recuperaram.")
             } else {
@@ -49,7 +48,7 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
         private fun comer(jogador: Jogador) {
             if (jogador.ouro >= 3) {
                 jogador.ouro -= 3
-                jogador.comida += 3
+                jogador.comida += 10
                 println("Seu exército está bem alimentado.")
             } else {
                 println("Ouro insuficiente.")
@@ -175,7 +174,7 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
             when(chanceAleatoria){
                 in 1..20 -> {
                     // ouro
-                    println("Você encontra um pote de ouro 🪙")
+                    println("Você encontra um pote de ouro")
                     jogador.ouro += 15
                 }
 
@@ -188,7 +187,7 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
                 }
                 in 41..60 -> {
                     // +2 comida
-                    println("Você encontra uma carne assada, aparentemente fresca 🍖")
+                    println("Você encontra uma carne assada, aparentemente fresca")
                     jogador.comida = jogador.comida + 2
                 }
                 in 61..80 -> {
@@ -243,13 +242,13 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
                             for(tropa in jogador.tropas){
                                 tropa.vida = tropa.vida - 1
                                 println("Vocês foram punidos pela sua indecencia contra os deuses")
-                                println("-1 ❤ ")
+                                println("-1 HP")
                             }
                         }else{
                             for(tropa in jogador.tropas){
                                 tropa.vida = tropa.vida + 1
                                 println("Vocês foram abençoados pelos deuses")
-                                println("+1 ❤ ")
+                                println("+1 HP")
                             }
                         }
                         CMDHelper.pressionarEnterContinuar()
@@ -389,10 +388,173 @@ enum class Estruturas(var estado: EstadoEstrutura = EstadoEstrutura.DISPONIVEL) 
     },
 
     Mercado {
+
         override fun funcaoEstrutura(jogador: Jogador, mapa: Mapa) {
-            println("")
+
+            var mercadoAberto = true
+
+            if(jogador.procurado.contains(jogador.territorioAtual)){
+                CMDHelper.limparTela()
+                println("Você roubou essa loja, o lojista não irá te atender mais!")
+                mercadoAberto = false
+                CMDHelper.pressionarEnterContinuar()
+            }
+
+            while (mercadoAberto) {
+
+                CMDHelper.limparTela()
+                println("Você encontra uma estrutura em uma condição boa, há uma luz de dentro que te chama a atenção.")
+                println("Ao entrar, você percebe que não há ninguém dentro exceto um homem atrás do balcão.")
+                println()
+                println("Dono do Mercado: Olá viajante! O que te traz aqui?")
+                println("| 1. Comprar")
+                println("| 2. Vender")
+                println("| 3. Roubar")
+                println("| 4. Sair")
+                print("Digite sua ação: ")
+
+                when (readLine()) {
+
+                    "1" -> menuComprar(jogador)
+
+                    "2" -> menuVender(jogador)
+
+                    "3" -> {
+                        CMDHelper.limparTela()
+                        val chance = Random.nextInt(1, 101)
+
+                        if (chance <= 30) {
+                            println("Você conseguiu roubar um item sem ser percebido!")
+                            jogador.inventario.add(Itens.pocaoCura)
+                        } else {
+                            println("Você foi pego tentando roubar!")
+                            println("Dois guardas aparecem para defender o mercado!")
+                            val local = mapa.encontrarTerritorio(jogador.territorioAtual.nome)
+                            if(local != null){
+                                local.inimigos.add(Guarda())
+                                local.inimigos.add(Guarda())
+                            }else{
+                                println("Erro no sistema, por favor tente novamente!")
+                            }
+                            mercadoAberto = false
+                            jogador.procurado.add(jogador.territorioAtual)
+                        }
+
+                        CMDHelper.pressionarEnterContinuar()
+                    }
+
+                    "4" -> {
+                        CMDHelper.limparTela()
+                        println("Dono do Mercado: tudo bem então! Volte sempre.")
+                        CMDHelper.pressionarEnterContinuar()
+                        mercadoAberto = false
+                    }
+
+                    else -> {
+                        println("Opção inválida.")
+                        CMDHelper.pressionarEnterContinuar()
+                    }
+                }
+            }
+        }
+
+        private fun menuComprar(jogador: Jogador) {
+
+            CMDHelper.limparTela()
+            println("Dono do Mercado: Claro! O que você gostaria de comprar?")
+            println()
+
+            val itensVendiveis = itensInstanciados.filter { it.vendivel }
+
+            if (itensVendiveis.isEmpty()) {
+                println("No momento, não há itens à venda.")
+                CMDHelper.pressionarEnterContinuar()
+                return
+            }
+
+            itensVendiveis.forEachIndexed { index, item ->
+                println("| ${index + 1}. ${item.nome} (${item.preco} ouros)")
+            }
+
+            println("| ${itensVendiveis.size + 1}. Voltar")
+            print("Escolha uma opção: ")
+
+            val escolha = readLine()?.toIntOrNull()
+
+            if (escolha == null || escolha < 1 || escolha > itensVendiveis.size + 1) {
+                println("Opção inválida.")
+                CMDHelper.pressionarEnterContinuar()
+                return
+            }
+
+            if (escolha == itensVendiveis.size + 1) {
+                return
+            }
+
+            val itemEscolhido = itensVendiveis[escolha - 1]
+            val chance = Random.nextInt(1, 101)
+
+            CMDHelper.limparTela()
+
+            if (chance <= 50) {
+                println("Você conseguiu pechinchar!")
+                println("Levou dois ${itemEscolhido.nome} pelo preço de um.")
+
+                jogador.inventario.add(itemEscolhido)
+                jogador.inventario.add(itemEscolhido)
+                jogador.ouro -= itemEscolhido.preco
+            } else {
+                println("Você comprou ${itemEscolhido.nome} por ${itemEscolhido.preco} ouros.")
+
+                jogador.inventario.add(itemEscolhido)
+                jogador.ouro -= itemEscolhido.preco
+            }
+
+            CMDHelper.pressionarEnterContinuar()
+        }
+
+        private fun menuVender(jogador: Jogador) {
+
+            CMDHelper.limparTela()
+            println("Dono do Mercado: O que você deseja vender?")
+            println()
+
+            if (jogador.inventario.isEmpty()) {
+                println("Você não possui itens para vender.")
+                CMDHelper.pressionarEnterContinuar()
+            }else{
+                jogador.inventario.forEachIndexed { index, item ->
+                    if(item.vendivel){
+                        println("| ${index + 1}. ${item.nome} (${item.preco / 2} ouros)")
+                    }
+                }
+
+                println("| ${jogador.inventario.size + 1}. Voltar")
+                print("Escolha uma opção: ")
+
+                val escolha = readLine()?.toIntOrNull()
+
+                if (escolha == null || escolha < 1 || escolha > jogador.inventario.size + 1) {
+                    println("Opção inválida.")
+                    CMDHelper.pressionarEnterContinuar()
+                    return
+                }
+
+                if (escolha == jogador.inventario.size + 1) {
+                    return
+                }
+
+                val itemVendido = jogador.inventario[escolha - 1]
+
+                jogador.inventario.removeAt(escolha - 1)
+                jogador.ouro += itemVendido.preco / 2
+
+                println("Você vendeu ${itemVendido.nome} por ${itemVendido.preco / 2} ouros.")
+                CMDHelper.pressionarEnterContinuar()
+            }
         }
     };
+
 
     abstract fun funcaoEstrutura(jogador: Jogador, mapa: Mapa)
 

@@ -33,6 +33,10 @@ abstract class Personagem (
                 if(turnosStatus <= 0) status = StatusPersonagem.NADA
                 println("O personagem está congelado...")
             }
+
+            StatusPersonagem.ENFRAQUECIDO -> {
+                println("O personagem está fraco...")
+            }
         }
     }
 
@@ -46,5 +50,5 @@ abstract class Personagem (
 }
 
 enum class StatusPersonagem{
-    NADA, QUEIMANDO, DORMINDO, INVISIVEL, CONGELADO
+    NADA, QUEIMANDO, DORMINDO, INVISIVEL, CONGELADO, ENFRAQUECIDO
 }

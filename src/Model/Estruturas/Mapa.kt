@@ -20,7 +20,8 @@ class Mapa{
                 AcoesJogador.Sair
             ),
             estruturas = mutableListOf(
-                Estruturas.Cabana
+                Estruturas.Cabana,
+                Estruturas.Mercado
             )
         )
 
@@ -125,7 +126,8 @@ class Mapa{
             ),
             estruturas = mutableListOf(
                 Estruturas.Taverna,
-                Estruturas.Ferreiro
+                Estruturas.Ferreiro,
+                Estruturas.Mercado
             )
         )
 
@@ -198,7 +200,8 @@ class Mapa{
             ),
             estruturas = mutableListOf(
                 Estruturas.Taverna,
-                Estruturas.Ferreiro
+                Estruturas.Ferreiro,
+                Estruturas.Mercado
             )
         )
 
