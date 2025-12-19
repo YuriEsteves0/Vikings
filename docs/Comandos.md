@@ -15,7 +15,7 @@ Para garantir a exibição correta de acentuação e caracteres especiais no ter
 
    
     ```
-    cmdchcp 65001
+    chcp 65001
     ```
     
 5. Navegue até a pasta onde o jogo foi extraído utilizando o comando cd:
