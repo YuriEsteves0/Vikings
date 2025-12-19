@@ -27,19 +27,24 @@ abstract class Personagem (
             StatusPersonagem.INVISIVEL -> {
                 println("O personagem está invisivel...")
             }
+
+            StatusPersonagem.CONGELADO -> {
+                turnosStatus--
+                if(turnosStatus <= 0) status = StatusPersonagem.NADA
+                println("O personagem está congelado...")
+            }
         }
     }
 
     fun podeAgir(): Boolean {
         return when (status) {
-            StatusPersonagem.DORMINDO -> {
-                false
-            }
+            StatusPersonagem.CONGELADO,
+            StatusPersonagem.DORMINDO -> false
             else -> true
         }
     }
 }
 
 enum class StatusPersonagem{
-    NADA, QUEIMANDO, DORMINDO, INVISIVEL
+    NADA, QUEIMANDO, DORMINDO, INVISIVEL, CONGELADO
 }

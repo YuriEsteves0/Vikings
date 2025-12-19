@@ -20,12 +20,13 @@ abstract class Tropa(
     abstract fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int
     abstract fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int
 
+    abstract fun habilidadeEspecialDescricao(): String
+
     fun atualizarBuff() {
         if (turnosStatus > 0) {
             turnosStatus--
         }
     }
-
 
     fun decidirMovimento(jogador: Jogador, inimigo: Inimigo): Int {
         if (status == StatusPersonagem.INVISIVEL) {
@@ -49,7 +50,7 @@ abstract class Tropa(
 
 }
 
-class Guerreiro : Tropa(TiposTropa.GUERREIRO, 18, 18, 5) {
+class Guerreiro : Tropa(TiposTropa.GUERREIRO, 13, 13, 5) {
     override fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int {
         return ataque + jogador.bonusGuerreiroAT
     }
@@ -58,10 +59,14 @@ class Guerreiro : Tropa(TiposTropa.GUERREIRO, 18, 18, 5) {
         println("Guerreiro usou ataque especial!")
         return ataque + 1
     }
+
+    override fun habilidadeEspecialDescricao(): String {
+        return "Aumento de ataque"
+    }
 }
 
 
-class Arqueiro : Tropa(TiposTropa.ARQUEIRO, 10, 10, 4) {
+class Arqueiro : Tropa(TiposTropa.ARQUEIRO, 10, 10, 3) {
 
     override fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int {
         return ataque + jogador.bonusArqueiroAT
@@ -85,6 +90,10 @@ class Arqueiro : Tropa(TiposTropa.ARQUEIRO, 10, 10, 4) {
         }
 
         return dano
+    }
+
+    override fun habilidadeEspecialDescricao(): String {
+        return "Flecha de Fogo"
     }
 }
 
@@ -111,9 +120,19 @@ class Mago : Tropa(TiposTropa.MAGO, 8, 8, 2) {
         return magiaAleatoria
     }
 
+    override fun habilidadeEspecialDescricao(): String {
+        return "Feitiço Aleatório"
+    }
+
 }
 
 enum class TiposTropa{
-    GUERREIRO, MAGO, ARQUEIRO
+    GUERREIRO,
+    MAGO,
+    ARQUEIRO,
+//    BANDIDO, // ASSA SINO
+//    INVOCADOR
 }
+
+// ladino pode usar uma invisibilidade a cada 5 turnos e tem chance de entrar invisivel
 

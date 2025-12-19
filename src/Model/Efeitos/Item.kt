@@ -32,12 +32,17 @@ class Item(
                 alvo.status = StatusPersonagem.INVISIVEL
                 println("${alvo.tipo.name.formatarNome()} ficou invisível 👁")
             }
+
+            TiposItens.MISSAO -> {
+                println()
+                println("O item serve apenas para a missão principal")
+            }
         }
     }
 }
 
 enum class TiposItens{
-    CURA, BUFF, EVASAO
+    CURA, BUFF, EVASAO, MISSAO
 }
 
 object Itens {
@@ -47,5 +52,12 @@ object Itens {
         tipo = TiposItens.CURA,
         poder = 3,
         precisaAlvo = true
+    )
+
+    val chaveIgreja = Item(
+        nome = "Chave da Igreja Antiga",
+        descricao = "Uma chave antiga que serve para destrancar as portas da Igreja Antiga",
+        tipo = TiposItens.MISSAO,
+        poder = 0
     )
 }

@@ -1,11 +1,21 @@
 package Model.Personagem
 
+import Model.Efeitos.Grimorio
+import Model.Efeitos.Magia
+
 abstract class Inimigo(
     val nome: TiposInimigos,
     override var vida: Int,
     override var vidaTotal: Int,
     override var ataque: Int,
-    var statusPersonagem: StatusPersonagem = StatusPersonagem.NADA
+    var ouro: Int,
+    var magiasConhecidas: MutableList<Magia> = mutableListOf(
+        Grimorio.bolaDeFogo,
+        Grimorio.curaSimples,
+        Grimorio.congelar,
+        Grimorio.sono
+    ),
+    var statusPersonagem: StatusPersonagem = StatusPersonagem.NADA,
 ) : Personagem(vida, vidaTotal, ataque, statusPersonagem){
     abstract fun habilidadeEspecial(inimigo: Tropa): Int
 
@@ -24,14 +34,14 @@ abstract class Inimigo(
     }
 }
 
-class BonecoTeste : Inimigo(TiposInimigos.BONECO_TESTE, 10000, 10000, 0){
+class BonecoTeste : Inimigo(TiposInimigos.BONECO_TESTE, 10000, 10000, 0, 0){
     override fun habilidadeEspecial(inimigo: Tropa): Int {
         println("Boneco de teste ficou la parado...")
         return 0
     }
 }
 
-class Lobo : Inimigo(TiposInimigos.LOBO, 6, 6, 3) {
+class Lobo : Inimigo(TiposInimigos.LOBO, 6, 6, 3, 2) {
     override fun habilidadeEspecial(inimigo: Tropa): Int {
         return if ((1..100).random() <= 30) {
             println("O Lobo atacou duas vezes!")
@@ -42,7 +52,7 @@ class Lobo : Inimigo(TiposInimigos.LOBO, 6, 6, 3) {
     }
 }
 
-class Orc : Inimigo(TiposInimigos.ORC, 14, 14, 5) {
+class Orc : Inimigo(TiposInimigos.ORC, 14, 14, 5, 4) {
     override fun habilidadeEspecial(inimigo: Tropa): Int {
         println("O Orc usa ataque brutal!")
         vida -= 1
@@ -50,14 +60,14 @@ class Orc : Inimigo(TiposInimigos.ORC, 14, 14, 5) {
     }
 }
 
-class GoblinGuerreiro : Inimigo(TiposInimigos.GOBLIN_GUERREIRO, 4, 4, 1){
+class GoblinGuerreiro : Inimigo(TiposInimigos.GOBLIN_GUERREIRO, 4, 4, 1, 1){
     override fun habilidadeEspecial(inimigo: Tropa): Int {
         println("O Goblin Guerreiro usa ataque brutal menor!")
         return ataque + 2
     }
 }
 
-class GoblinArqueiro : Inimigo(TiposInimigos.GOBLIN_ARQUEIRO, 4, 4, 1){
+class GoblinArqueiro : Inimigo(TiposInimigos.GOBLIN_ARQUEIRO, 4, 4, 1, 1){
     override fun habilidadeEspecial(inimigo: Tropa): Int {
         println("O Goblin Arqueiro dispara uma flecha de fogo!")
 
@@ -79,12 +89,44 @@ class GoblinArqueiro : Inimigo(TiposInimigos.GOBLIN_ARQUEIRO, 4, 4, 1){
     }
 }
 
-class GoblinMago : Inimigo(TiposInimigos.GOBLIN_MAGO, 4, 4, 1){
+
+class GoblinMago : Inimigo(TiposInimigos.GOBLIN_MAGO, 4, 4, 1, 1){
     override fun habilidadeEspecial(inimigo: Tropa): Int {
+
+        var magia = decidirMagia()
+        return magia.executar(this, inimigo)
+
         return 0
+    }
+
+    fun decidirMagia() : Magia{
+        val magiaAleatoria = magiasConhecidas.random()
+        println("Goblin mago usou o feitiço ${magiaAleatoria.nome}")
+        return magiaAleatoria
     }
 }
 
+//class Bruxa : Inimigo(TiposInimigos.BRUXA, 7, 7, 3, 5){
+//    override fun habilidadeEspecial(inimigo: Tropa): Int {
+//
+//    }
+//}
+
+
 enum class TiposInimigos{
-    LOBO, ORC, GOBLIN_GUERREIRO, GOBLIN_MAGO, GOBLIN_ARQUEIRO, BONECO_TESTE
+    LOBO,
+    ORC,
+    GOBLIN_GUERREIRO,
+    GOBLIN_MAGO,
+    GOBLIN_ARQUEIRO,
+    BONECO_TESTE,
+    BRUXA,
+    GIGANTE,
+    DRAGAO,
+    MIMICO,
+    ESQUELETO,
+    CICLOPE
 }
+
+// esqueleto depois de atacar ele morre '-'
+// bosses: gigante, dragão, ciclope

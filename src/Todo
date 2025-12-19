@@ -1,9 +1,16 @@
 fazer o sistema de diversos tipos de flechas
-fazer o sistema de inventário
 fazer um sistema de criação do mapa aleatório com monstros aleatórios em cada mapa e pontuação de chegar mais longe
-tem alguma porra errada no ferreiro
 sistema de salvar
-fazer o status de dormindo e de invisivel
+quando tiver inimigo no lugar só poder atacar ou ver informações e tals
+
+no inventario se tiver item repetido colocar 2x 3x 4x
+analisar passivas de cada tropa
+magia de analisar passiva do inimigo
+pedra/magia de teleporte pra estrutura
+fazer o bagulho da igreja
+o bgl da comida do altar ta repetiundo 3 vezes
+tirar todos os emojis
+auren nao pode ser acessada sem ser por barco
 
 MAPA ANTIGO
 
@@ -33,3 +40,4 @@ MAPA NOVO
 
 IGREJA ANTIGA ESTÁ BLOQUEADA E SÓ PODE SER ACESSADA COM UM ITEM ENCONTRADO NAS MONSTRANHAS.
 AO ENTRAR NA IGREJA ANTIGA TERÁ UM PORTAL ONDE LEVARÁ PARA UM SEGUNDO MAPA
+É POSSÍVEL CAMINHAR PARA A IGREJA ANTIGA, PORÉM NÃO É POSSÍVEL ENTRAR NA ESTRUTURA DELA.

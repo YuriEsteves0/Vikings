@@ -2,6 +2,7 @@ import Helper.CMDHelper
 import Helper.DadoHelper
 import Helper.Dados
 import Helper.SorteStatus
+import Model.Efeitos.Magia
 import Model.Estruturas.*
 import Model.Personagem.*
 import java.util.*
@@ -25,9 +26,7 @@ fun main() {
         if(jogador.comida <= 0){
             jogador.comida = 0
             for(tropa in jogador.tropas){
-                CMDHelper.Debug(tropa.vida.toString())
                 tropa.vida = tropa.vida - 1
-                CMDHelper.Debug(tropa.vida.toString())
             }
             println("Suas tropas estão com fome, penalidade de -1 hp")
         }
@@ -40,10 +39,10 @@ fun main() {
             for(inimigo in territorioAtual.inimigos){
                 if(inimigo.status == StatusPersonagem.NADA){
                     println("• ${inimigo.nome.name.formatarNome()} " +
-                            "❤  ${barraVida(inimigo.vida, inimigo.vidaTotal)} ${inimigo.vida}/${inimigo.vidaTotal}")
+                            "${barraVida(inimigo.vida, inimigo.vidaTotal)} ${inimigo.vida}/${inimigo.vidaTotal}")
                 }else{
                     println("• ${inimigo.nome.name.formatarNome()} " +
-                            "❤  ${barraVida(inimigo.vida, inimigo.vidaTotal)} ${inimigo.vida}/${inimigo.vidaTotal}")
+                            "${barraVida(inimigo.vida, inimigo.vidaTotal)} ${inimigo.vida}/${inimigo.vidaTotal}")
                     inimigo.aplicarEfeitoStatus()
                 }
             }
@@ -79,13 +78,13 @@ fun main() {
                         if (territoriosAnalisados.containsKey(destino.nome)) {
 
                             val sorte = territoriosAnalisados[destino.nome]!!
-                            val chance = Random.nextInt(1, 10)
+                            val chance = Random.nextInt(1, 101)
 
                             when (sorte) {
-                                SorteStatus.FALHA_CRITICA -> if (chance <= 10) emboscada(jogador, destino)
-                                SorteStatus.FALHA -> if (chance <= 7) emboscada(jogador, destino)
-                                SorteStatus.OK -> if (chance <= 5) emboscada(jogador, destino)
-                                SorteStatus.SUCESSO -> if (chance <= 3) emboscada(jogador, destino)
+                                SorteStatus.FALHA_CRITICA -> if (chance <= 100) emboscada(jogador, destino)
+                                SorteStatus.FALHA -> if (chance <= 70) emboscada(jogador, destino)
+                                SorteStatus.OK -> if (chance <= 50) emboscada(jogador, destino)
+                                SorteStatus.SUCESSO -> if (chance <= 30) emboscada(jogador, destino)
                                 SorteStatus.SUCESSO_CRITICO -> {}
                             }
 
@@ -105,7 +104,6 @@ fun main() {
                     }
                 }
             }
-
             AcoesJogador.Analisar_Territorio -> {
                 println("Digite o nome do lugar que você quer analisar:")
                 println("(EX: montanha / rio)")
@@ -130,7 +128,6 @@ fun main() {
                     println()
                     println("Número do dado: $numeroDado/20")
                     println()
-
                     fun estimativa(real: Int, percentualErro: Double, erroMin: Int = 1): Int {
                         if (real <= 0) return 0
 
@@ -194,10 +191,13 @@ fun main() {
 
                         while (iAliado < jogador.tropas.size || iInimigo < territorioAtual.inimigos.size) {
 
+                            // Se é a vez do aliado, adicione ele na ordem de ataque
                             if (vezAliado && iAliado < jogador.tropas.size) {
                                 ordemAtaque.add(jogador.tropas[iAliado++])
+                                // Se é a vez do inimigo, adicione ele na ordem de ataque
                             } else if (!vezAliado && iInimigo < territorioAtual.inimigos.size) {
                                 ordemAtaque.add(territorioAtual.inimigos[iInimigo++])
+
                             }
 
                             vezAliado = !vezAliado
@@ -224,7 +224,7 @@ fun main() {
                                     if (!jogador.tropas.contains(entidade)) continue
 
                                     if (!entidade.podeAgir()) {
-                                        println("\n⏳ ${entidade.tipo.name.formatarNome()} está incapacitado!")
+                                        println("\n${entidade.tipo.name.formatarNome()} está incapacitado!")
                                         entidade.aplicarEfeitoStatus()
                                         CMDHelper.pressionarEnterContinuar()
                                         continue
@@ -237,20 +237,21 @@ fun main() {
 
                                     val inimigoAlvo = alvosPossiveis.random()
 
-                                    println("\n▶ TURNO DO ALIADO")
-                                    println("🗡 ${entidade.tipo.name.formatarNome()} ➜ ${inimigoAlvo.nome.name.formatarNome()}")
+                                    println("\nTURNO DO ALIADO")
+                                    println("${entidade.tipo.name.formatarNome()} ➜ ${inimigoAlvo.nome.name.formatarNome()}")
 
                                     val dano = entidade.decidirMovimento(jogador, inimigoAlvo)
-                                    println("💥 Dano causado: $dano")
+                                    println("Dano causado: $dano")
 
                                     inimigoAlvo.vida -= dano
 
                                     if (inimigoAlvo.vida <= 0) {
-                                        println("☠ ${inimigoAlvo.nome.name.formatarNome()} foi derrotado!")
+                                        textoMorto(entidade, inimigoAlvo, false)
+                                        jogador.ouro += inimigoAlvo.ouro
                                         territorioAtual.inimigos.remove(inimigoAlvo)
 
                                         if (territorioAtual.inimigos.isEmpty()) {
-                                            println("🎉 Todos os inimigos foram derrotados!")
+                                            println("Todos os inimigos foram derrotados!")
                                             combateAtivo = false
                                         }
                                     }
@@ -260,7 +261,7 @@ fun main() {
                                     if (!territorioAtual.inimigos.contains(entidade)) continue
 
                                     if (!entidade.podeAgir()) {
-                                        println("\n⏳ ${entidade.nome.name.formatarNome()} está incapacitado!")
+                                        println("\n${entidade.nome.name.formatarNome()} está incapacitado!")
                                         entidade.aplicarEfeitoStatus()
                                         CMDHelper.pressionarEnterContinuar()
                                         continue
@@ -273,30 +274,30 @@ fun main() {
 
                                     val tropaAlvo = alvosPossiveis.random()
 
-                                    println("\n▶ TURNO DO INIMIGO")
-                                    println("🩸 ${entidade.nome.name.formatarNome()} ➜ ${tropaAlvo.tipo.name.formatarNome()}")
+                                    println("\nTURNO DO INIMIGO")
+                                    println("${entidade.nome.name.formatarNome()} ➜ ${tropaAlvo.tipo.name.formatarNome()}")
 
                                     val dano = entidade.decidirMovimento(tropaAlvo)
-                                    println("💥 Dano causado: $dano")
+                                    println("Dano causado: $dano")
 
                                     tropaAlvo.vida -= dano
 
                                     if (tropaAlvo.vida <= 0) {
-                                        println("☠ ${tropaAlvo.tipo.name.formatarNome()} foi derrotado!")
+                                        textoMorto(tropaAlvo, entidade, true)
                                         jogador.tropas.remove(tropaAlvo)
 
                                         if (jogador.tropas.isNotEmpty()) {
                                             println()
-                                            println("⚠ Um aliado morreu. Deseja continuar o combate?")
+                                            println("Um aliado morreu. Deseja continuar o combate?")
                                             println("[1] Continuar")
                                             println("[2] Fugir")
 
                                             if (readLine()?.trim() == "2") {
-                                                println("🏃 Você decidiu fugir do combate!")
+                                                println("Você decidiu fugir do combate!")
                                                 combateAtivo = false
                                             }
                                         } else {
-                                            println("☠ Todas as suas tropas foram derrotadas!")
+                                            println("Todas as suas tropas foram derrotadas!")
                                             combateAtivo = false
                                         }
                                     }
@@ -342,7 +343,8 @@ fun main() {
 
                 if (indice in ordemEstruturas) {
                     val estruturaEscolhida = ordemEstruturas[indice]
-                    estruturaEscolhida?.funcaoEstrutura(jogador)
+                    CMDHelper.limparTela()
+                    estruturaEscolhida?.funcaoEstrutura(jogador, mapa)
                 } else {
                     println("Opção de estrutura inválida!")
                 }
@@ -351,23 +353,11 @@ fun main() {
             AcoesJogador.Informações_Do_Reino -> {
                 CMDHelper.limparTela()
                 println()
-                println("*-----* INFORMAÇÕES *-----*")
-                for (tropa in jogador.tropas){
-                    when(tropa.tipo){
-                        TiposTropa.GUERREIRO->{
-                            println("${tropa.tipo.name.formatarNome()} (${tropa.vida}/${tropa.vidaTotal} ❤ ) (${tropa.ataque + jogador.bonusGuerreiroAT} ⚔\uFE0E )")
-                        }
-                        TiposTropa.MAGO ->  {
-                            println("${tropa.tipo.name.formatarNome()} (${tropa.vida}/${tropa.vidaTotal} ❤ ) (${tropa.ataque + jogador.bonusMagoAT} ⚔\uFE0E )")
-                        }
-                        TiposTropa.ARQUEIRO -> {
-                            println("${tropa.tipo.name.formatarNome()} (${tropa.vida}/${tropa.vidaTotal} ❤ ) (${tropa.ataque + jogador.bonusArqueiroAT} ⚔\uFE0E )")
-                        }
-                    }
-                }
+                mostrarPainelTropas(jogador.tropas, jogador.bonusGuerreiroAT, jogador.bonusMagoAT, jogador.bonusArqueiroAT)
                 println()
                 println("${jogador.nome} você conquistou ${jogador.territoriosDominados.size}/${mapa.territorios.size} territórios")
                 println("*-----*-------------*-----*")
+
                 CMDHelper.pressionarEnterContinuar()
                 CMDHelper.limparTela()
             }
@@ -392,7 +382,26 @@ fun main() {
 
                 if (jogador.inventario.isEmpty()) {
                     println("| Inventário vazio")
+                    println("*-----*------------*-----*")
+                    println()
+                    println("*-----* Magias Conhecidas *-----*")
+                    val magias = mutableSetOf<Magia>()
+
+                    jogador.tropas.forEach { tropa ->
+                        if (tropa.magiasConhecidas.isEmpty()) {
+                            println("| Sem magias conhecidas")
+                        } else {
+                            tropa.magiasConhecidas.forEach { magia ->
+                                if (magias.add(magia)) {
+                                    println("| ${magia.nome}")
+                                }
+                            }
+                        }
+                    }
+                    println("*-----*-------------------*-----*")
+                    println()
                     CMDHelper.pressionarEnterContinuar()
+                    CMDHelper.limparTela()
                     continue
                 }
 
@@ -403,7 +412,25 @@ fun main() {
                 println("*-----*------------*-----*")
                 println()
 
-                print("Escolha o item: ")
+                println("*-----* Magias Conhecidas *-----*")
+                val magias = mutableSetOf<Magia>()
+
+                jogador.tropas.forEach { tropa ->
+                    if (tropa.magiasConhecidas.isEmpty()) {
+                        println("| Sem magias conhecidas")
+                    } else {
+                        tropa.magiasConhecidas.forEach { magia ->
+                            if (magias.add(magia)) {
+                                println("| ${magia.nome}")
+                            }
+                        }
+                    }
+                }
+                println("*-----*-------------------*-----*")
+                println()
+
+
+                print("Escolha o item do inventário: ")
                 val escolha = readLine()?.toIntOrNull()
 
                 if (escolha == null || escolha !in jogador.inventario.indices) {
@@ -474,61 +501,65 @@ fun consumirComida(jogador: Jogador, acaoUsu: AcoesJogador){
     val consumoTotal = consumoBase + consumoExtra
     jogador.comida -= consumoTotal
 
-    println("🍗 Suas tropas consumiram $consumoTotal de comida")
+    println("Suas tropas consumiram $consumoTotal de comida")
 }
 
 fun emboscada(jogador: Jogador, destino: Territorio) {
-    CMDHelper.limparTela()
+    if(destino.inimigos.isNotEmpty()){
 
-    println("════════════════════════════════════")
-    println("⚠  EMBOSCADA!")
-    println("════════════════════════════════════")
-    println("Você foi atacado de surpresa por ${destino.inimigos.size} inimigos!\n")
 
-    val random = Random
-    val tropasMortas = mutableListOf<Tropa>()
+        CMDHelper.limparTela()
 
-    for (inimigo in destino.inimigos) {
+        println("════════════════════════════════════")
+        println("   EMBOSCADA!")
+        println("════════════════════════════════════")
+        println("Você foi atacado de surpresa por ${destino.inimigos.size} inimigos!\n")
 
-        if (jogador.tropas.isEmpty()) break
+        val random = Random
+        val tropasMortas = mutableListOf<Tropa>()
 
-        val indice = random.nextInt(jogador.tropas.size)
-        val tropaAlvo = jogador.tropas[indice]
+        for (inimigo in destino.inimigos) {
 
-        println("🩸 ${inimigo.nome.name.formatarNome()} ataca ${tropaAlvo.tipo.name.formatarNome()}!")
+            if (jogador.tropas.isEmpty()) break
 
-        val dano = inimigo.decidirMovimento(tropaAlvo)
-        tropaAlvo.vida -= dano
+            val indice = random.nextInt(jogador.tropas.size)
+            val tropaAlvo = jogador.tropas[indice]
 
-        println(
-            "💥 Dano: $dano   " +
-                    "❤ ${barraVida(tropaAlvo.vida, tropaAlvo.vidaTotal)} " +
-                    "${tropaAlvo.vida}/${tropaAlvo.vidaTotal}"
-        )
+            println(" ${inimigo.nome.name.formatarNome()} ataca ${tropaAlvo.tipo.name.formatarNome()}!")
 
-        if (tropaAlvo.vida <= 0) {
-            println("☠ ${tropaAlvo.tipo.name.formatarNome()} caiu em combate!")
-            tropasMortas.add(tropaAlvo)
+            val dano = inimigo.decidirMovimento(tropaAlvo)
+            tropaAlvo.vida -= dano
+
+            println(
+                "Dano: $dano   " +
+                        "HP ${barraVida(tropaAlvo.vida, tropaAlvo.vidaTotal)} " +
+                        "${tropaAlvo.vida}/${tropaAlvo.vidaTotal}"
+            )
+
+            if (tropaAlvo.vida <= 0) {
+                println(" ${tropaAlvo.tipo.name.formatarNome()} caiu em combate!")
+                tropasMortas.add(tropaAlvo)
+            }
+
+            println()
         }
 
-        println()
-    }
+        jogador.tropas.removeAll(tropasMortas)
 
-    jogador.tropas.removeAll(tropasMortas)
-
-    if (tropasMortas.isNotEmpty()) {
-        println("⚰ Perdas na emboscada:")
-        tropasMortas.forEach {
-            println("• ${it.tipo.name.formatarNome()}")
+        if (tropasMortas.isNotEmpty()) {
+            println(" Perdas na emboscada:")
+            tropasMortas.forEach {
+                println("• ${it.tipo.name.formatarNome()}")
+            }
         }
-    }
 
-    if (jogador.tropas.isEmpty()) {
-        println("\n☠ Todas as suas tropas foram exterminadas na emboscada...")
-    }
+        if (jogador.tropas.isEmpty()) {
+            println("\n Todas as suas tropas foram exterminadas na emboscada...")
+        }
 
-    println("════════════════════════════════════")
-    CMDHelper.pressionarEnterContinuar()
+        println("════════════════════════════════════")
+        CMDHelper.pressionarEnterContinuar()
+    }
 }
 
 fun acoesUsu(acoesDisponiveis: List<AcoesJogador>) : AcoesJogador? {
@@ -635,7 +666,7 @@ fun criarMapa(jogador: Jogador, mapa: Mapa) {
 
 fun nomeComInimigos(territorio: Territorio) : String{
     return if(territorio.inimigos.isNotEmpty() || territorio.inimigos.size > 0){
-        "⚔  ${territorio.nome} ⚔ "
+        "AT  ${territorio.nome} ⚔ "
     }else{
         territorio.nome
     }
@@ -669,42 +700,46 @@ fun barraVida(atual: Int, max: Int, tamanho: Int = 10): String {
 
 fun mostrarPainelBatalha(jogador: Jogador, inimigos: List<Inimigo>) {
     println("════════════════════════════════════")
-    println("⚔  BATALHA EM ANDAMENTO")
+    println("   BATALHA EM ANDAMENTO")
     println("════════════════════════════════════")
 
-    println("\n🟦 ALIADOS")
+    println("\n ALIADOS")
     jogador.tropas.forEach {
         if(it.status == StatusPersonagem.NADA){
             println(
                 "• ${it.tipo.name.formatarNome()} " +
-                        "❤  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}"
+                        "HP  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}"
             )
         }else{
             println(
                 "• ${it.tipo.name.formatarNome()} " +
-                        "❤  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}   ${it.status.name.formatarNome()}"
-            )
+                        "HP  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}   ${it.status.name.formatarNome()}")
         }
     }
 
-    println("\n🟥 INIMIGOS")
+    println("\n INIMIGOS")
     inimigos.forEach {
-        println("• ${it.nome.name.formatarNome()} " +
-                "❤  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}")
+        if(it.status == StatusPersonagem.NADA){
+            println("• ${it.nome.name.formatarNome()} " +
+                    "HP  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}")
+        }else{
+
+            println("• ${it.nome.name.formatarNome()} " +
+                    "HP  ${barraVida(it.vida, it.vidaTotal)} ${it.vida}/${it.vidaTotal}   ${it.status.name.formatarNome()}")
+        }
     }
 
     println("════════════════════════════════════")
 }
 
 fun mostrarOrdemAtaque(ordemAtaque: List<Any>) {
-    println("\n⚔ ORDEM DE ATAQUE")
+    println("-- ORDEM DE ATAQUE --")
     ordemAtaque.forEach {
         when (it) {
-            is Tropa -> println("[🟦 ${it.tipo.name.formatarNome()}] ")
-            is Inimigo -> println("[🟥 ${it.nome.name.formatarNome()}] ")
+            is Tropa -> println("[ALIADO -> ${it.tipo.name.formatarNome()}] ")
+            is Inimigo -> println("[INIMIGO -> ${it.nome.name.formatarNome()}] ")
         }
     }
-    println("FIM\n")
 }
 
 
@@ -724,3 +759,33 @@ fun resolverDestino(
     return mapa.encontrarTerritorio(input)
 }
 
+fun mostrarPainelTropas(
+    tropas: List<Tropa>,
+    bonusGuerreiroAT: Int,
+    bonusMagoAT: Int,
+    bonusArqueiroAT: Int
+) {
+    println("*-----* TROPAS *-----*")
+
+    println("|")
+    tropas.forEachIndexed { index, tropa ->
+        val bonusAtaque = when (tropa.tipo) {
+            TiposTropa.GUERREIRO -> bonusGuerreiroAT
+            TiposTropa.MAGO -> bonusMagoAT
+            TiposTropa.ARQUEIRO -> bonusArqueiroAT
+        }
+
+        val vidaAtual = tropa.vida.coerceAtLeast(0)
+
+        println(
+            "| $index. ${tropa.tipo.name.formatarNome()} " +
+                    "${barraVida(vidaAtual, tropa.vidaTotal, tropa.vidaTotal)} (${vidaAtual}/${tropa.vidaTotal} HP  ) " +
+                    "(${tropa.ataque + bonusAtaque} AT  )"
+        )
+        println("|      Habilidade Especial: ${tropa.habilidadeEspecialDescricao()}")
+        println("|")
+
+    }
+
+    println("*-----*-------------*-----*")
+}

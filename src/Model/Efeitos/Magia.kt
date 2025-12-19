@@ -14,7 +14,7 @@ class Magia(
     val chanceStatus: Int = 0,
     val statusAplicado: StatusPersonagem? = null
 ) {
-    fun executar(caster: Tropa, alvo: Personagem): Int {
+    fun executar(caster: Personagem, alvo: Personagem): Int {
         return when (tipo) {
             TiposMagia.DANO -> {
                 val dano = poder + caster.ataque
@@ -35,12 +35,29 @@ class Magia(
             }
 
             TiposMagia.BUFF -> {
+                // Se a magia aplicar um status em quem recebe E o numero da chance (entre 1 e 100) for menor do que
+                // a chance escolhida na hora de criar a magia.
                 if (statusAplicado != null && (1..100).random() <= chanceStatus) {
 
                     caster.status = statusAplicado
+                    // Poder aqui, se encaixa como se fosse a quantidade de turnos que o alvo irá ficar com o efeito
                     caster.turnosStatus = poder
 
-                    println("✨ ${caster.tipo.name.formatarNome()} recebeu o buff $statusAplicado por $poder turno(s)")
+                    println("✨ ${caster.javaClass.simpleName} recebeu o buff $statusAplicado por $poder turno(s)")
+                }
+
+                0
+            }
+
+            TiposMagia.DEBUFF -> {
+                // Se a magia aplicar um status em quem recebe E o numero da chance (entre 1 e 100) for menor do que
+                // a chance escolhida na hora de criar a magia.
+                if(statusAplicado != null && (1..100).random() <= chanceStatus){
+                    alvo.status = statusAplicado
+                    // Poder aqui, se encaixa como se fosse a quantidade de turnos que o alvo irá ficar com o efeito
+                    alvo.turnosStatus = poder
+
+                    println("🫢 ${alvo.javaClass.simpleName} recebeu o debuff $statusAplicado por $poder turno(s)")
                 }
 
                 0
@@ -51,10 +68,19 @@ class Magia(
 
 
 enum class TiposMagia{
-    DANO, CURA, BUFF
+    DANO, CURA, BUFF, DEBUFF
 }
 
 object Grimorio {
+
+    val congelar = Magia(
+        nome = "Congelar",
+        descricao = "Feitiço que congela seu inimigo",
+        tipo = TiposMagia.DEBUFF,
+        poder = 1,
+        chanceStatus = 60,
+        statusAplicado = StatusPersonagem.CONGELADO
+    )
 
     val invisivel = Magia(
         nome = "Invisibilidade",
@@ -89,5 +115,17 @@ object Grimorio {
         tipo = TiposMagia.CURA,
         poder = 5
     )
+
+    private val magias = listOf(
+        invisivel,
+        sono,
+        bolaDeFogo,
+        curaSimples,
+        congelar
+    )
+
+    fun magiaAleatoria(): Magia{
+        return magias.random()
+    }
 }
 
