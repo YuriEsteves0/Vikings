@@ -7,9 +7,11 @@ class Mapa{
 
     fun criarTerritorios() {
 
+        // PRIMEIRO MAPA
+
         val ruinasAntigas = Territorio(
             nome = "Ruínas Antigas",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -27,7 +29,7 @@ class Mapa{
 
         val estradaReal = Territorio(
             nome = "Estrada Real",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -37,14 +39,14 @@ class Mapa{
                 AcoesJogador.Sair
             ),
             inimigos = mutableListOf(
-                Lobo(),
-                Lobo()
+                LoboInimigo(),
+                LoboInimigo()
             )
         )
 
         val portoVelho = Territorio(
             nome = "Porto Velho",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -64,7 +66,7 @@ class Mapa{
 
         val pantano = Territorio(
             nome = "Pântano",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -81,7 +83,7 @@ class Mapa{
 
         val florestaSombria = Territorio(
             nome = "Floresta Sombria",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -91,14 +93,14 @@ class Mapa{
                 AcoesJogador.Sair
             ),
             inimigos = mutableListOf(
-                Lobo(),
+                LoboInimigo(),
                 GoblinArqueiro()
             )
         )
 
         val igrejaAntiga = Territorio(
             nome = "Igreja Antiga",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -108,6 +110,9 @@ class Mapa{
                 AcoesJogador.Ajuda,
                 AcoesJogador.Sair
             ),
+            estruturas = mutableListOf(
+                Estruturas.Igreja
+            ),
             inimigos = mutableListOf(
                 GoblinMago()
             )
@@ -115,7 +120,7 @@ class Mapa{
 
         val vilaValkstad = Territorio(
             nome = "Vila de Valkstad",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Analisar_Territorio,
                 AcoesJogador.Inventario,
@@ -133,7 +138,7 @@ class Mapa{
 
         val planicie = Territorio(
             nome = "Planície",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -150,7 +155,7 @@ class Mapa{
 
         val cavernaProfunda = Territorio(
             nome = "Caverna Profunda",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -172,7 +177,7 @@ class Mapa{
 
         val montanhas = Territorio(
             nome = "Montanhas",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Atacar,
                 AcoesJogador.Analisar_Territorio,
@@ -189,7 +194,7 @@ class Mapa{
 
         val capitalAuren = Territorio(
             nome = "Capital de Auren",
-            acaoDisponiveis = listOf(
+            acaoDisponiveis = mutableListOf(
                 AcoesJogador.Andar,
                 AcoesJogador.Analisar_Territorio,
                 AcoesJogador.Inventario,
@@ -202,7 +207,8 @@ class Mapa{
                 Estruturas.Taverna,
                 Estruturas.Ferreiro,
                 Estruturas.Mercado
-            )
+            ),
+            disponivel = false
         )
 
         adicionarVizinhos(ruinasAntigas, estradaReal, Direcao.SUL)
@@ -226,8 +232,226 @@ class Mapa{
         adicionarVizinhos(cavernaProfunda, vilaValkstad, Direcao.NORTE)
         adicionarVizinhos(vilaValkstad, capitalAuren, Direcao.NORTE)
 
+        // SEGUNDO MAPA
+
+        val torreOraculo = Territorio(
+            nome = "Torre do Oráculo",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Torre_Oraculo
+            ),
+        )
+
+        val vilarejoBrannor = Territorio(
+            nome = "Vilarejo de Brannor",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Taverna,
+                // Ponto social do vilarejo; permite descanso, rumores e pequenos contratos.
+                Estruturas.Mercado
+            )
+        )
+
+        val encruzilhadaNorte = Territorio(
+            nome = "Encruzilhada do Norte",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            inimigos = mutableListOf(
+                Bruxa(),
+                GoblinMago()
+            )
+        )
+
+        val camposDourados = Territorio(
+            nome = "Campos Dourados",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Fazenda
+            )
+        )
+
+        val fortalezaSkjold = Territorio(
+            nome = "Fortaleza de Skjold",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Ferreiro,
+                Estruturas.Taverna,
+                Estruturas.Quartel_General
+            )
+        )
+
+        val bosqueCinzas = Territorio(
+            nome = "Bosque das Cinzas",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            inimigos = mutableListOf(
+                Bruxa(),
+                EspreitadorSombras()
+            )
+        )
+
+        val valeSilencio = Territorio(
+            nome = "Vale do Silêncio",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            inimigos = mutableListOf(
+                ParasitaMental(),
+                Esqueleto()
+            )
+        )
+
+        val portoHaldrek = Territorio(
+            nome = "Porto de Haldrek",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Porto
+            ),
+            inimigos = mutableListOf(
+                Copy(),
+                Copy()
+            )
+        )
+
+        val abismoEsquecido = Territorio(
+            nome = "Abismo Esquecido",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Antro_Antigo
+            ),
+        )
+
+        val cordilheiraFerro = Territorio(
+            nome = "Cordilheira de Ferro",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Mercado,
+                Estruturas.Taverna
+            )
+        )
+
+        val casteloViking = Territorio(
+            nome= "Castelo Viking",
+            acaoDisponiveis = mutableListOf(
+                AcoesJogador.Andar,
+                AcoesJogador.Atacar,
+                AcoesJogador.Analisar_Territorio,
+                AcoesJogador.Inventario,
+                AcoesJogador.Entrar,
+                AcoesJogador.Informações_Do_Reino,
+                AcoesJogador.Ajuda,
+                AcoesJogador.Sair
+            ),
+            inimigos = mutableListOf(
+                Viking(),
+                CarnicalFaminto()
+            ),
+            estruturas = mutableListOf(
+                Estruturas.Castelo_Viking
+            )
+        )
+
+        adicionarVizinhos(torreOraculo, vilarejoBrannor, Direcao.SUL)
+
+        adicionarVizinhos(vilarejoBrannor, encruzilhadaNorte, Direcao.LESTE)
+        adicionarVizinhos(vilarejoBrannor, camposDourados, Direcao.SUL)
+
+        adicionarVizinhos(encruzilhadaNorte, fortalezaSkjold, Direcao.SUL)
+
+        adicionarVizinhos(camposDourados, bosqueCinzas, Direcao.SUL)
+        adicionarVizinhos(bosqueCinzas, valeSilencio, Direcao.LESTE)
+
+        adicionarVizinhos(valeSilencio, portoHaldrek, Direcao.LESTE)
+        adicionarVizinhos(valeSilencio, abismoEsquecido, Direcao.SUL)
+
+        adicionarVizinhos(abismoEsquecido, cordilheiraFerro, Direcao.SUL)
+        adicionarVizinhos(cordilheiraFerro, casteloViking, Direcao.SUL)
+
         territorios.addAll(
             listOf(
+
+                // PRIMEIRO MAPA
+
                 ruinasAntigas,
                 portoVelho,
                 estradaReal,
@@ -238,7 +462,20 @@ class Mapa{
                 florestaSombria,
                 planicie,
                 cavernaProfunda,
-                montanhas
+                montanhas,
+
+                // SEGUNDO MAPA
+
+                torreOraculo, // 11
+                vilarejoBrannor,
+                encruzilhadaNorte,
+                camposDourados,
+                fortalezaSkjold,
+                bosqueCinzas,
+                valeSilencio,
+                portoHaldrek,
+                abismoEsquecido,
+                cordilheiraFerro
             )
         )
     }

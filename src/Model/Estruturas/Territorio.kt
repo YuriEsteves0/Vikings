@@ -5,9 +5,10 @@ import Model.Personagem.Inimigo
 
 class Territorio(
     val nome: String,
-    val acaoDisponiveis: List<AcoesJogador> = emptyList(),
+    val acaoDisponiveis: MutableList<AcoesJogador> = mutableListOf(),
     val estruturas: List<Estruturas> = emptyList(),
     val inimigos: MutableList<Inimigo> = mutableListOf(),
+    val disponivel: Boolean = true,
     val vizinhos: MutableMap<Direcao, Territorio> = mutableMapOf(),
 ){
     override fun equals(other: Any?): Boolean {

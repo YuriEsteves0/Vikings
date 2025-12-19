@@ -53,6 +53,7 @@ val itensInstanciados: List<Item> = listOf(
 )
 
 object Itens {
+
     val pocaoCura = Item(
         nome = "Poção de Cura",
         descricao = "Cura uma tropa em 3 de vida",

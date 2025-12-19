@@ -1,9 +1,7 @@
 package Model.Personagem
 
 import Model.Efeitos.Grimorio
-import Model.Efeitos.Item
 import Model.Efeitos.Magia
-import formatarNome
 
 abstract class Tropa(
     val tipo: TiposTropa,
@@ -50,14 +48,14 @@ abstract class Tropa(
 
 }
 
-class Guerreiro : Tropa(TiposTropa.GUERREIRO, 13, 13, 5) {
+class Guerreiro : Tropa(TiposTropa.GUERREIRO, 15, 15, 5) {
     override fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int {
         return ataque + jogador.bonusGuerreiroAT
     }
 
     override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
         println("Guerreiro usou ataque especial!")
-        return ataque + 1
+        return ataque + jogador.bonusGuerreiroAT + 1
     }
 
     override fun habilidadeEspecialDescricao(): String {
@@ -126,12 +124,55 @@ class Mago : Tropa(TiposTropa.MAGO, 8, 8, 2) {
 
 }
 
+class InvocadorAliado : Tropa(TiposTropa.INVOCADOR, 12, 12, 3){
+    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
+        for(tropa in jogador.tropas){
+            if(tropa.tipo == TiposTropa.LOBO){
+                return ataque + jogador.bonusInvocador
+            }else{
+                println("O invocador invocou um lobo")
+                jogador.tropas.add(LoboAliado())
+                return 0
+            }
+        }
+        return ataque + jogador.bonusInvocador
+    }
+
+    override fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int {
+        return ataque + jogador.bonusInvocador
+    }
+
+    override fun habilidadeEspecialDescricao(): String {
+        return "Invoca um lobo para te proteger"
+    }
+}
+
+class LoboAliado : Tropa(TiposTropa.LOBO, 6, 6, 3) {
+    override fun habilidadeEspecial(jogador: Jogador, inimigo: Inimigo): Int {
+        return if ((1..100).random() <= 30) {
+            println("O Lobo atacou duas vezes!")
+            ataque + 1
+        } else {
+            ataque
+        }
+    }
+
+    override fun ataqueNormal(jogador: Jogador, inimigo: Inimigo): Int {
+        return ataque
+    }
+
+    override fun habilidadeEspecialDescricao(): String {
+        return "Chance de atacar duas vezes"
+    }
+}
+
 enum class TiposTropa{
     GUERREIRO,
     MAGO,
     ARQUEIRO,
-//    BANDIDO, // ASSA SINO
-//    INVOCADOR
+    LOBO,
+    INVOCADOR,
+//    BANDIDO, // ASSASSINO
 }
 
 // ladino pode usar uma invisibilidade a cada 5 turnos e tem chance de entrar invisivel

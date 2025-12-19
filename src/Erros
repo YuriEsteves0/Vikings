@@ -7,10 +7,6 @@ no inventario se tiver item repetido colocar 2x 3x 4x
 analisar passivas de cada tropa
 magia de analisar passiva do inimigo
 pedra/magia de teleporte pra estrutura
-fazer o bagulho da igreja
-o bgl da comida do altar ta repetiundo 3 vezes
-tirar todos os emojis
-auren nao pode ser acessada sem ser por barco
 
 MAPA ANTIGO
 
@@ -41,3 +37,25 @@ MAPA NOVO
 IGREJA ANTIGA ESTÁ BLOQUEADA E SÓ PODE SER ACESSADA COM UM ITEM ENCONTRADO NAS MONSTRANHAS.
 AO ENTRAR NA IGREJA ANTIGA TERÁ UM PORTAL ONDE LEVARÁ PARA UM SEGUNDO MAPA
 É POSSÍVEL CAMINHAR PARA A IGREJA ANTIGA, PORÉM NÃO É POSSÍVEL ENTRAR NA ESTRUTURA DELA.
+
+SEGUNDO MAPA
+
+                         [ Torre do Oráculo ]
+                                |
+                                |
+                    [ Vilarejo de Brannor ] ── [ Encruzilhada do Norte ]
+                                |                    |
+                                |                    |
+                     [ Campos Dourados ]    [ Fortaleza de Skjold ]
+                                |                    |
+                                |                    |
+                    [ Bosque das Cinzas ] ── [ Vale do Silêncio ] ── [ Porto de Haldrek ]
+                                |
+                                |
+                       [ Abismo Esquecido ]
+                                |
+                                |
+                     [ Cordilheira de Ferro ]
+                                |
+                                |
+                        [Castelo Viking]

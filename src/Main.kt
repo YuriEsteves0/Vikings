@@ -23,12 +23,22 @@ fun main() {
 
         criarMapa(jogador, mapa)
 
+        // CONFIG DE PENALIDADE DE COMIDA
+
         if(jogador.comida <= 0){
             jogador.comida = 0
             for(tropa in jogador.tropas){
                 tropa.vida = tropa.vida - 1
             }
             println("Suas tropas estão com fome, penalidade de -1 hp")
+            println()
+        }
+
+        // CONFIG MOMENTOS CHAVE
+
+        if(jogador.andadasAposInvestimentoFazenda == 0){
+            println("Talvez eu devesse dar uma olhada na fazenda...")
+            println()
         }
 
         println("Comida: ${jogador.comida}      Ouro: ${jogador.ouro}      Tropas: ${jogador.tropas.size}")
@@ -64,7 +74,6 @@ fun main() {
                     println("Ex: Montanhas | norte | cima")
                     println()
 
-
                     val entrada = readLine()?.trim() ?: ""
 
                     val destino = resolverDestino(territorioAtual, mapa, entrada)
@@ -74,33 +83,45 @@ fun main() {
                         println("Destino inválido ou inacessível!")
                         CMDHelper.pressionarEnterContinuar()
                     }else{
+                        if(destino.disponivel){
+                            if (territoriosAnalisados.containsKey(destino.nome)) {
 
-                        if (territoriosAnalisados.containsKey(destino.nome)) {
+                                val sorte = territoriosAnalisados[destino.nome]!!
+                                val chance = Random.nextInt(1, 101)
 
-                            val sorte = territoriosAnalisados[destino.nome]!!
-                            val chance = Random.nextInt(1, 101)
+                                when (sorte) {
+                                    SorteStatus.FALHA_CRITICA -> if (chance <= 100) emboscada(jogador, destino, mapa)
+                                    SorteStatus.FALHA -> if (chance <= 70) emboscada(jogador, destino, mapa)
+                                    SorteStatus.OK -> if (chance <= 50) emboscada(jogador, destino, mapa)
+                                    SorteStatus.SUCESSO -> if (chance <= 30) emboscada(jogador, destino, mapa)
+                                    SorteStatus.SUCESSO_CRITICO -> {}
+                                }
 
-                            when (sorte) {
-                                SorteStatus.FALHA_CRITICA -> if (chance <= 100) emboscada(jogador, destino)
-                                SorteStatus.FALHA -> if (chance <= 70) emboscada(jogador, destino)
-                                SorteStatus.OK -> if (chance <= 50) emboscada(jogador, destino)
-                                SorteStatus.SUCESSO -> if (chance <= 30) emboscada(jogador, destino)
-                                SorteStatus.SUCESSO_CRITICO -> {}
+                            } else if (destino.inimigos.isNotEmpty()) {
+                                val chance = Random.nextInt(1, 10)
+                                if (chance <= 5) {
+                                    emboscada(jogador, destino, mapa)
+                                } else {
+                                    println()
+                                    println("Você evitou uma emboscada")
+                                }
+                            }
+                            jogador.territorioAtual = destino
+
+                            if (
+                                jogador.eventosChave.contains(EventosChave.INVESTIMENTO_FAZENDA) &&
+                                !jogador.eventosChave.contains(EventosChave.COLETA_DIVIDENDOS_FAZENDA)
+                            ) {
+                                jogador.andadasAposInvestimentoFazenda++
                             }
 
-                        } else if (destino.inimigos.isNotEmpty()) {
-                            val chance = Random.nextInt(1, 10)
-                            if (chance <= 5) {
-                                emboscada(jogador, destino)
-                            } else {
-                                println()
-                                println("Você evitou uma emboscada")
-                            }
+                            consumirComida(jogador, AcoesJogador.Andar)
+                            CMDHelper.limparTela()
+                        }else{
+                            CMDHelper.limparTela()
+                            println("Há guardas impossibilitando sua entrada nesse território")
+                            CMDHelper.pressionarEnterContinuar()
                         }
-
-                        jogador.territorioAtual = destino
-                        consumirComida(jogador, AcoesJogador.Andar)
-                        CMDHelper.limparTela()
                     }
                 }
             }
@@ -249,6 +270,12 @@ fun main() {
 
                                     var dano = entidade.decidirMovimento(jogador, inimigoAlvo)
 
+                                    // CONFIGURAÇÃO DE STATUS DE PERSONAGEM
+
+                                    if(inimigoAlvo is EcoDeGuerra){
+                                        inimigoAlvo.registrarDano(dano)
+                                    }
+
                                     if(entidade.status == StatusPersonagem.ENFRAQUECIDO){
                                         dano -= 2
                                         entidade.aplicarEfeitoStatus()
@@ -258,7 +285,17 @@ fun main() {
 
                                     inimigoAlvo.vida -= dano
 
+                                    // Aqui é o codigo de quando o inimigo morre
                                     if (inimigoAlvo.vida <= 0) {
+                                        if(inimigoAlvo.nome == TiposInimigos.ARMADURA_ENFEITICADA){
+                                            CMDHelper.limparTela()
+                                            println("A armadura se desmonta, você percebe que não há ninguém dentro dela...")
+                                            CMDHelper.pressionarEnterContinuar()
+                                            println("Ela então começa a se montar e volta para sua posição inicial")
+                                            CMDHelper.pressionarEnterContinuar()
+                                            println("Você olha para ela indignado com o que acabou de acontecer, quando de repente a armadura  solta uma rajada de vento que te joga para fora da igreja")
+                                            CMDHelper.pressionarEnterContinuar()
+                                        }
                                         textoMorto(entidade, inimigoAlvo, false)
                                         jogador.ouro += inimigoAlvo.ouro
                                         territorioAtual.inimigos.remove(inimigoAlvo)
@@ -290,7 +327,7 @@ fun main() {
                                     println("\nTURNO DO INIMIGO")
                                     println("${entidade.nome.name.formatarNome()} ➜ ${tropaAlvo.tipo.name.formatarNome()}")
 
-                                    var dano = entidade.decidirMovimento(tropaAlvo)
+                                    var dano = entidade.decidirMovimento(tropaAlvo,mapa, jogador)
 
                                     if(entidade.status == StatusPersonagem.ENFRAQUECIDO){
                                         dano -= 2
@@ -378,7 +415,7 @@ fun main() {
             AcoesJogador.Informações_Do_Reino -> {
                 CMDHelper.limparTela()
                 println()
-                mostrarPainelTropas(jogador.tropas, jogador.bonusGuerreiroAT, jogador.bonusMagoAT, jogador.bonusArqueiroAT)
+                mostrarPainelTropas(jogador.tropas, jogador.bonusGuerreiroAT, jogador.bonusMagoAT, jogador.bonusArqueiroAT, jogador.bonusInvocador)
                 println()
                 println("${jogador.nome} você conquistou ${jogador.territoriosDominados.size}/${mapa.territorios.size} territórios")
                 println("*-----*-------------*-----*")
@@ -529,7 +566,7 @@ fun consumirComida(jogador: Jogador, acaoUsu: AcoesJogador){
     println("Suas tropas consumiram $consumoTotal de comida")
 }
 
-fun emboscada(jogador: Jogador, destino: Territorio) {
+fun emboscada(jogador: Jogador, destino: Territorio, mapa: Mapa) {
     if(destino.inimigos.isNotEmpty()){
 
 
@@ -552,7 +589,7 @@ fun emboscada(jogador: Jogador, destino: Territorio) {
 
             println(" ${inimigo.nome.name.formatarNome()} ataca ${tropaAlvo.tipo.name.formatarNome()}!")
 
-            val dano = inimigo.decidirMovimento(tropaAlvo)
+            val dano = inimigo.decidirMovimento(tropaAlvo,mapa,jogador)
             tropaAlvo.vida -= dano
 
             println(
@@ -713,7 +750,7 @@ fun linhaHorizontal(larguraCelula: Int): String {
 
 
 fun criarJogador(mapa: Mapa) : Jogador {
-    return Jogador("Yuri", mapa.territorios[0])
+    return Jogador("Yuri", mapa.territorios[14])
 }
 
 fun barraVida(atual: Int, max: Int, tamanho: Int = 10): String {
@@ -788,7 +825,8 @@ fun mostrarPainelTropas(
     tropas: List<Tropa>,
     bonusGuerreiroAT: Int,
     bonusMagoAT: Int,
-    bonusArqueiroAT: Int
+    bonusArqueiroAT: Int,
+    bonusInvocador: Int
 ) {
     println("*-----* TROPAS *-----*")
 
@@ -798,6 +836,8 @@ fun mostrarPainelTropas(
             TiposTropa.GUERREIRO -> bonusGuerreiroAT
             TiposTropa.MAGO -> bonusMagoAT
             TiposTropa.ARQUEIRO -> bonusArqueiroAT
+            TiposTropa.INVOCADOR -> bonusInvocador
+            TiposTropa.LOBO -> 0
         }
 
         val vidaAtual = tropa.vida.coerceAtLeast(0)

@@ -37,18 +37,28 @@ abstract class Personagem (
             StatusPersonagem.ENFRAQUECIDO -> {
                 println("O personagem está fraco...")
             }
+
+            StatusPersonagem.VOANDO -> {
+                println("O personagem está voando...")
+            }
         }
     }
 
-    fun podeAgir(): Boolean {
+    fun podeAgir(tropa: TiposTropa? = null, inimigo: TiposInimigos? = null): Boolean {
         return when (status) {
             StatusPersonagem.CONGELADO,
             StatusPersonagem.DORMINDO -> false
+            StatusPersonagem.VOANDO -> {
+                if (tropa == TiposTropa.MAGO || tropa == TiposTropa.ARQUEIRO || tropa == TiposTropa.INVOCADOR || inimigo == TiposInimigos.BRUXA || inimigo == TiposInimigos.GOBLIN_MAGO || inimigo == TiposInimigos.ESQUELETO || inimigo == TiposInimigos.INVOCADOR || inimigo == TiposInimigos.DRAGAO || inimigo == TiposInimigos.GOBLIN_ARQUEIRO){
+                    return true
+                }
+                return false
+            }
             else -> true
         }
     }
 }
 
 enum class StatusPersonagem{
-    NADA, QUEIMANDO, DORMINDO, INVISIVEL, CONGELADO, ENFRAQUECIDO
+    NADA, QUEIMANDO, DORMINDO, INVISIVEL, CONGELADO, ENFRAQUECIDO, VOANDO
 }
