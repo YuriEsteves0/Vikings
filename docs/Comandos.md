@@ -4,6 +4,32 @@ Esta seção tem como objetivo explicar, de forma detalhada, as principais mecâ
 
 ---
 
+## Instalação e Execução (Windows)
+
+Para garantir a exibição correta de acentuação e caracteres especiais no terminal, siga os passos abaixo:
+
+1. Baixe o arquivo `.zip` do jogo.
+2. Extraia o conteúdo para uma pasta de sua preferência.
+3. Abra o **Prompt de Comando (CMD)**.
+4. No CMD, execute o comando abaixo para habilitar UTF-8:
+
+   
+    ```
+    chcp 65001
+    ```
+    
+5. Navegue até a pasta onde o jogo foi extraído utilizando o comando cd:
+     ```
+     cd C:\caminho\para\a\pasta\do\jogo
+     ```
+     `ATENÇÃO: VOCÊ DEVERÁ TROCAR PELO CAMINHO ONDE ESTÁ SALVO O SEU JOGO`
+
+6. Execute o jogo digitando:
+     ```
+      Vikings.exe
+     ```
+---
+
 ### Como se movimentar pelo mapa
 O jogador pode se deslocar entre territórios utilizando a ação **Andar**. A movimentação só é permitida quando **todos os inimigos do território atual foram eliminados**.
 
